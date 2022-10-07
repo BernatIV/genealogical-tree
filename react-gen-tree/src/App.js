@@ -46,11 +46,19 @@ export default App;
  * TODO 4: Comunicar-se amb el backend.
  *      I. Carregar els nodes i edges de la base de dades en carregar-se el component.
  *      II. Guardar un node a la base de dades quan premi el botó guardar.
+ *
+ * TODO 5: Context Menu
+ *      I. FET. Afegir context menu
+ *      II. borrar el que està seleccionat o obtenir l'id del que estàs clicant
+ *
+ * TODO 6: Colors de la pàgina. No tant blanc perq mata molt
+ *
+ * TODO 7: Els Handles han de ser més grans per poder clicar-los més ràpidament
  */
 
 
 /**
- *
+ *  PSEUDO-CODE for connecting two parents
  *
  * 1. onConnect -> fire event
  *

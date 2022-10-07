@@ -1,14 +1,38 @@
 import {Handle, Position} from "reactflow";
-import './PersonNode.css';
+import {useEffect, useState} from "react";
 
 const PersonNode = (props) => {
+    const [personNodeStyle, setPersonNodeStyle] = useState({
+        minWidth: '125px',
+        padding: '10px',
+        border: '1px solid #3a3a3a',
+        borderRadius: '5px',
+        background: 'white',
+        fontSize: '10px',
+    });
+
+    /**
+     * check on every render (only if props changed) if the node is selected to update the border.
+     */
+    useEffect(() => {
+        if (props.selected) {
+            setPersonNodeStyle(prevState => {
+                return {...prevState, border: '2px solid #3a3a3a'}
+            });
+        } else {
+            setPersonNodeStyle(prevState => {
+                return {...prevState, border: '1px solid #3a3a3a'}
+            });
+        }
+    }, [props]);
+
     const handleStyle = {
         width: '10px',
         height: '10px'
     }
 
     return (
-        <div className="person-node">
+        <div style={personNodeStyle}>
             <Handle style={{
                 width: '20px',
                 height: '20px',
