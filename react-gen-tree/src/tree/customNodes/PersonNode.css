@@ -1,6 +1,8 @@
 .person-node {
-    border: 1px solid #eee;
-    padding: 5px;
+    min-width: 125px;
+    padding: 10px;
+    border: 1px solid #3a3a3a;
     border-radius: 5px;
     background: white;
+    font-size: 10px;
 }

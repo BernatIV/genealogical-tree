@@ -31,7 +31,13 @@ export default App;
 
 /**
  * TODO 1: Customitzar els nodes perquè tinguin un punt al lateral, només si es vol, i puguin fer les relacions de parelles.
- *          Fer tipus de nodes. Les persones i els casaments
+ *          - PersonNode
+ *              - que pugui ser 'selectable'
+ *          - Quan es crea una relació, l'event que dispara crei una relació més amb un node de "casament" al mig
+ *            perquè no ho hagi de fer l'usuari
+ *          - CoupleRelationNode
+ *              - que tingui dos handlers minúsculs per ajuntar les parelles i un molt gran per relacionar els fills.
+ *                  Es pot crear un handler al mig de un edge?
  *
  * FET 2: finestra modal: nom, lloc de naixement, data naixement, data defunció, ofici
  *
@@ -40,4 +46,18 @@ export default App;
  * TODO 4: Comunicar-se amb el backend.
  *      I. Carregar els nodes i edges de la base de dades en carregar-se el component.
  *      II. Guardar un node a la base de dades quan premi el botó guardar.
+ */
+
+
+/**
+ *
+ *
+ * 1. onConnect -> fire event
+ *
+ * 2. if the two node connected are parents -> create a handle in the middle of the edge.
+ *      if not, then it means it is targeting children therefore we don't need it.
+ *
+ * 3.
+ *
+ *
  */

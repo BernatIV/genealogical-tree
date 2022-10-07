@@ -25,15 +25,22 @@ const Tree = () => {
     const nodeTypes = useMemo(() => ({ person: PersonNode }), []);
 
 
-    const onNodesChange = useCallback(
-        (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-        []
-    );
-    const onEdgesChange = useCallback(
-        (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-        []
-    );
-    const connectHandler = useCallback((params) => setEdges((eds) => addEdge(params, eds)), []);
+    const onNodesChange = useCallback((changes) =>
+            setNodes((nds) =>
+                applyNodeChanges(changes, nds)),
+        []);
+
+    const onEdgesChange = useCallback((changes) =>
+            setEdges((eds) =>
+                applyEdgeChanges(changes, eds)),
+        []);
+
+    const connectHandler = useCallback((params) =>
+        setEdges((eds) => {
+            // TODO if both nodes are parents, connected with the left and right handles -> create a node in the middle of the edge
+            addEdge(params, eds)
+        }),
+        []);
 
     const changeEditModeHandler = () => {
         setEditable(!editable);

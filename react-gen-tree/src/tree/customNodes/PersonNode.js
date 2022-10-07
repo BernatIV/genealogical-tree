@@ -1,8 +1,12 @@
 import {Handle, Position} from "reactflow";
 import './PersonNode.css';
 
-
 const PersonNode = (props) => {
+    const handleStyle = {
+        width: '10px',
+        height: '10px'
+    }
+
     return (
         <div className="person-node">
             <Handle style={{
@@ -23,11 +27,11 @@ const PersonNode = (props) => {
                     type="target"
                     position={Position.Left}
                     id="a" />
-            <Handle style={{width: '10px', height: '10px'}} type="target" position={Position.Top} id="b" />
+            <Handle style={handleStyle} type="target" position={Position.Top} id="b" />
             <div>
                 <label htmlFor="text">Text:</label>
             </div>
-            <Handle style={{width: '10px', height: '10px'}} type="source" position={Position.Right} id="c" />
+            <Handle style={handleStyle} type="source" position={Position.Right} id="c" />
         </div>
     );
 }
