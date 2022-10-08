@@ -38,7 +38,7 @@ const Tree = () => {
     const connectHandler = useCallback((params) =>
         setEdges((eds) => {
             // TODO if both nodes are parents, connected with the left and right handles -> create a node in the middle of the edge
-            addEdge(params, eds)
+            return addEdge(params, eds);
         }),
         []);
 
