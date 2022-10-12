@@ -53,7 +53,9 @@ export default App;
  *
  * TODO 6: Colors de la pàgina. No tant blanc perq mata molt
  *
- * TODO 7: Els Handles han de ser més grans per poder clicar-los més ràpidament
+ * FET 7: Els Handles han de ser més grans per poder clicar-los més ràpidament
+ *
+ * TODO 8: En mode no edició que els Handles siguin invisibles
  */
 
 

@@ -9,6 +9,7 @@ import ContextMenu from "./contextMenu/ContextMenu";
 import {Snackbar} from "@mui/material";
 import MuiAlert from '@mui/material/Alert';
 import PersonNode from "./customNodes/PersonNode";
+import CoupleUnionNode from "./customNodes/CoupleUnionNode";
 
 const Alert = forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -22,7 +23,7 @@ const Tree = () => {
     const [contextMenu, setContextMenu] = useState(null);
     const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
     let nodesToSave = [];
-    const nodeTypes = useMemo(() => ({ person: PersonNode }), []);
+    const nodeTypes = useMemo(() => ({person: PersonNode, coupleUnion: CoupleUnionNode}), []);
 
 
     const onNodesChange = useCallback((changes) =>
@@ -35,11 +36,40 @@ const Tree = () => {
                 applyEdgeChanges(changes, eds)),
         []);
 
-    const connectHandler = useCallback((params) =>
-        setEdges((eds) => {
-            // TODO if both nodes are parents, connected with the left and right handles -> create a node in the middle of the edge
-            return addEdge(params, eds);
-        }),
+    const connectHandler = (params) => {
+        const target = params.target;
+        const targetHandle = params.targetHandle;
+        const newNodeId = (Math.random() * 1000000).toString();
+
+        addNodeBetweenCouple(params, newNodeId);
+        connectFirstPartEdge(params);
+        connectSecondPartEdge(params, target, targetHandle, newNodeId);
+    }
+
+    const connectFirstPartEdge = useCallback((params) =>
+            setEdges((eds) => {
+
+
+                console.log('hola?');
+                console.log(params);
+                console.log(eds);
+
+                return addEdge(params, eds);
+            }),
+        []);
+
+    const connectSecondPartEdge = useCallback((params, target, targetHandle, newNodeId) =>
+            setEdges((eds) => {
+
+                params.source = newNodeId;
+                params.sourceHandle = 'c';
+                params.target = target;
+                params.targetHandle = targetHandle;
+
+                console.log(params);
+
+                return addEdge(params, eds);
+            }),
         []);
 
     const changeEditModeHandler = () => {
@@ -59,14 +89,34 @@ const Tree = () => {
         setShowAddNodeModal(true);
     }
 
+    const addNodeBetweenCouple = (params, nodeId) => {
+        params.target = nodeId;
+        params.targetHandle = 'a';
+
+        setNodes(prevState => {
+            return [...prevState, {
+                id: nodeId,
+                type: 'coupleUnion',
+                data: {
+                    label: <div style={{fontSize: 7}}>&nbsp;</div>
+                },
+                position: {x: 50, y: 50} // TODO: Les coordenades les tenim a l'array de nodes perq tenim l'id dels nodes que estem relacioant
+                // falta posar
+                // 1. les coordenades de debò entre els dos nodes,
+                // 2. i una segona relació
+            }];
+        });
+        return nodeId;
+    }
+
     const addNewNodeHandler = (newNode) => {
 
         const dateContent = fillDateField(newNode);
 
         setNodes(prevState => {
             return [...prevState, {
-                id: 'temporary-id',
-                type: '',
+                id: (Math.random() * 1000000).toString(),
+                type: 'person',
                 data: {
                     label:
                         <div>
@@ -76,7 +126,8 @@ const Tree = () => {
                             {dateContent}
                         </div>
                 },
-                position: {x: 0, y: 0}
+                position: {x: 0, y: 0},
+                isEditable: editable
             }];
         });
         // TODO save to backend
@@ -184,6 +235,7 @@ const Tree = () => {
                 <Card className="tree-size card-shadow"
                       onContextMenu={contextMenuHandler}>
                     <ReactFlow
+                        // style={{background: '#696851'}} // Possibles colors: 696851, CDE8BE
                         nodes={nodes}
                         onNodesChange={editable ? onNodesChange : null}
                         edges={edges}
@@ -207,9 +259,9 @@ const Tree = () => {
                 open={openSuccessSnackbar}
                 onClose={closeSuccessSnackbarHandler}
                 autoHideDuration={6000}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
             >
-                <Alert onClose={closeSuccessSnackbarHandler} severity="success" sx={{ width: '100%' }}>
+                <Alert onClose={closeSuccessSnackbarHandler} severity="success" sx={{width: '100%'}}>
                     L'arbre s'ha guardat!
                 </Alert>
             </Snackbar>
