@@ -3,18 +3,22 @@ import {useState} from "react";
 
 const CreateNodeModal = (props) => {
     const [newNode, setNewNode] = useState({
-        name: '',
-        birthPlace: '',
+        personName: '',
         job: '',
+        birthPlace: '',
+        deathPlace: '',
         birthDate: '',
         deathDate: '',
-        manualEnteredDate: ''
+        manualInputDate: '',
+        nodeType: 'person',
+        positionX: 0,
+        positionY: 0
     });
     const [enterDateManually, setEnterDateManually] = useState(false);
 
     const nameChangeHandler = (event) => {
         setNewNode(prevState => {
-            return {...prevState, name: event.target.value};
+            return {...prevState, personName: event.target.value};
         });
     }
 
@@ -42,9 +46,9 @@ const CreateNodeModal = (props) => {
         });
     }
 
-    const manualEnteredDateChangeHandler = (event) => {
+    const manualInputDateChangeHandler = (event) => {
         setNewNode(prevState => {
-            return {...prevState, manualEnteredDate: event.target.value};
+            return {...prevState, manualInputDate: event.target.value};
         });
     }
 
@@ -61,12 +65,12 @@ const CreateNodeModal = (props) => {
         props.onSaveNewNode(newNode);
         props.onCloseAddNodeModal();
         setNewNode({
-            name: '',
+            personName: '',
             birthPlace: '',
             job: '',
             birthDate: '',
             deathDate: '',
-            manualEnteredDate: ''
+            manualInputDate: ''
         });
     }
 
@@ -81,7 +85,7 @@ const CreateNodeModal = (props) => {
                         <Form.Label>Nom</Form.Label>
                         <Form.Control
                             type="text"
-                            value={newNode.name}
+                            value={newNode.personName}
                             onChange={nameChangeHandler}
                             autoFocus
                         />
@@ -109,8 +113,8 @@ const CreateNodeModal = (props) => {
                                     <Form.Label>Dates (o la informació que es tingui)</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        value={newNode.manualEnteredDate}
-                                        onChange={manualEnteredDateChangeHandler}
+                                        value={newNode.manualInputDate}
+                                        onChange={manualInputDateChangeHandler}
                                     />
                                 </Col>
                                 :

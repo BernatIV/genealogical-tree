@@ -109,49 +109,80 @@ const Tree = () => {
         return nodeId;
     }
 
-    const addNewNodeHandler = (newNode) => {
+    const addNewNodeHandler = async (newNode) => {
 
-        const dateContent = fillDateField(newNode);
+        const newNodeResponse = await saveNewNode(newNode);
+        const dateContent = fillDateField(newNodeResponse);
 
+        console.log('afegint node a larbre');
         setNodes(prevState => {
             return [...prevState, {
-                id: (Math.random() * 1000000).toString(),
+                id: newNodeResponse.id.toString(),
                 type: 'person',
                 data: {
                     label:
                         <div>
-                            <div>{newNode.name.trim()}</div>
-                            <div style={{fontSize: 8}}>{newNode.birthPlace.trim()}</div>
-                            <div style={{fontSize: 8}}>{newNode.job.trim()}</div>
+                            <div>{newNodeResponse.personName.trim()}</div>
+                            <div style={{fontSize: 8}}>{newNodeResponse.birthPlace.trim()}</div>
+                            <div style={{fontSize: 8}}>{newNodeResponse.job.trim()}</div>
                             {dateContent}
                         </div>
                 },
-                position: {x: 0, y: 0},
+                position: {
+                    x: newNodeResponse.positionX,
+                    y: newNodeResponse.positionY
+                },
                 isEditable: editable
             }];
         });
-        // TODO save to backend
     }
 
     const fillDateField = (newNode) => {
         let dateContent;
 
-        if (newNode.birthDate !== '' && newNode.deathDate === '') {
+        if ((newNode.birthDate !== '' && newNode.birthDate !== null) &&
+            (newNode.deathDate === '' || newNode.deathDate === null)) {
             dateContent = <div style={{fontSize: 8}}>Data de naixement: {newNode.birthDate}</div>;
         }
 
-        if (newNode.birthDate === '' && newNode.deathDate !== '') {
+        if ((newNode.birthDate === '' || newNode.birthDate === null) &&
+            (newNode.deathDate !== '' && newNode.deathDate !== null)) {
             dateContent = <div style={{fontSize: 8}}>Data de mort: {newNode.deathDate}</div>;
         }
 
-        if (newNode.birthDate !== '' && newNode.deathDate !== '') {
+        if (newNode.birthDate !== '' && newNode.birthDate !== null &&
+            newNode.deathDate !== '' && newNode.deathDate !== null) {
             dateContent = <div style={{fontSize: 8}}>({newNode.birthDate}) - ({newNode.deathDate})</div>;
         }
 
-        if (newNode.manualEnteredDate.trim() !== '') {
-            dateContent = <div style={{fontSize: 8}}>({newNode.manualEnteredDate.trim()})</div>;
+        if (newNode.manualInputDate.trim() !== '') {
+            dateContent = <div style={{fontSize: 8}}>({newNode.manualInputDate.trim()})</div>;
         }
         return dateContent
+    }
+
+    const saveNewNode = async (newNode) => {
+        try {
+            const response = await fetch('http://localhost:8080/api/tree/addNode', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newNode)
+            });
+
+            if (!response.ok) {
+                throw new Error('Something went wrong!');
+            }
+
+            const newNodeResponse = await response.json();
+
+            console.log(newNodeResponse);
+
+            return newNodeResponse;
+        } catch (e) {
+            throw new Error(e.message);
+        }
     }
 
     const closeAddNodeModalHandler = () => setShowAddNodeModal(false);
