@@ -38,9 +38,7 @@ const Tree = (props) => {
         []);
 
     const connectHandler = (params) => {
-        console.log('------INICI-EDGE----');
         console.log(params);
-
         const newNodeId = (Math.random() * 1000000).toString();
 
         const sourceNode = params.source;
@@ -65,10 +63,7 @@ const Tree = (props) => {
             sourceMiddleNodeHandle = 'a';
         }
 
-        console.log(sourceNode, sourceHandle, targetMiddleNode, targetMiddleNodeHandle);
-        console.log(sourceMiddleNode, sourceMiddleNodeHandle, targetNode, targetHandle);
-
-        addNodeBetweenCouple(newNodeId);
+        addNodeBetweenCouple(sourceNode, targetNode, newNodeId);
         connectFirstPartEdge(sourceNode, sourceHandle, targetMiddleNode, targetMiddleNodeHandle);
         connectSecondPartEdge(sourceMiddleNode, sourceMiddleNodeHandle, targetNode, targetHandle);
     }
@@ -79,7 +74,7 @@ const Tree = (props) => {
                 id: (Math.random() * 1000000).toString(),
                 source: sourceNode,
                 sourceHandle: sourceHandle,
-                target: targetMiddleNodeHandle,
+                target: targetMiddleNode,
                 targetHandle: targetMiddleNodeHandle
             }];
         }),
@@ -114,9 +109,13 @@ const Tree = (props) => {
         setShowAddNodeModal(true);
     }
 
-    const addNodeBetweenCouple = (nodeId) => {
-        // params.target = nodeId;
-        // params.targetHandle = 'a';
+    const addNodeBetweenCouple = (sourceNodeId, targetNodeId, nodeId) => {
+        const sourceNode = nodes.find(node => node.id === sourceNodeId);
+        const targetNode = nodes.find(node => node.id === targetNodeId);
+        console.log(sourceNode);
+
+        const averagePosition = calculateAveragePosition(sourceNode.position, targetNode.position);
+        console.log(averagePosition);
 
         setNodes(prevState => {
             return [...prevState, {
@@ -125,12 +124,18 @@ const Tree = (props) => {
                 data: {
                     label: <div style={{fontSize: 7}}>&nbsp;</div>
                 },
-                position: {x: 50, y: 50} // TODO: Les coordenades les tenim a l'array de nodes perq tenim l'id dels nodes que estem relacioant
-                // falta posar
-                // 1. les coordenades de debò entre els dos nodes,
-                // 2. i una segona relació
+                position: averagePosition
             }];
         });
+    }
+
+    const calculateAveragePosition = (sourceNodePosition, targetNodePosition) => {
+        const aproxWidth = 105;
+        const aproxHeight = 50;
+        const averageX = (sourceNodePosition.x + aproxWidth + targetNodePosition.x) / 2;
+        const averageY = (sourceNodePosition.y + aproxHeight + targetNodePosition.y) / 2;
+
+        return { x: averageX, y: averageY };
     }
 
     const addNewNodeHandler = async (newNode) => {
