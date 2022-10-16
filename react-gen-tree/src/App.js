@@ -15,11 +15,15 @@ function App() {
         setCurrentTab(tabId)
     }
 
+    const changeLoadingStateHandler = (isLoading) => {
+        setLoading(isLoading);
+    }
+
     return (
         <div>
             <NavBarApp onChangeTab={changeTabHandler} />
             {loading && <img src={loadingImg} className="App-logo" alt="loading"/>}
-            {currentTab === 'tree' && <Tree />}
+            {currentTab === 'tree' && <Tree onChangeLoadingState={changeLoadingStateHandler} />}
             {currentTab === 'guide' && <Guide />}
             {currentTab === 'login' && <Login/>}
         </div>
