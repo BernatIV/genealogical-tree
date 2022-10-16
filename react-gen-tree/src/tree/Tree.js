@@ -37,7 +37,19 @@ const Tree = (props) => {
                 applyEdgeChanges(changes, eds)),
         []);
 
+    const connectChildParentHandler = useCallback(
+        (connection) => setEdges((eds) => addEdge(connection, eds)),
+        [setEdges]
+    );
+
     const connectHandler = (params) => {
+        const parentChildRelation = params.sourceHandle === 'b';
+
+        if (parentChildRelation) {
+            connectChildParentHandler(params)
+            return;
+        }
+
         console.log(params);
         const newNodeId = (Math.random() * 1000000).toString();
 
