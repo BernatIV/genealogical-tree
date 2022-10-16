@@ -15,13 +15,14 @@ const Alert = forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-const Tree = () => {
+const Tree = (props) => {
     const [editable, setEditable] = useState(false);
     const [showAddNodeModal, setShowAddNodeModal] = useState(false);
     const [nodes, setNodes] = useState(initialNodes);
     const [edges, setEdges] = useState(initialEdges);
     const [contextMenu, setContextMenu] = useState(null);
-    const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
+    const [openSaveTreeSuccessSnackbar, setOpenSaveTreeSuccessSnackbar] = useState(false);
+    const [openSaveNodeSuccessSnackbar, setOpenSaveNodeSuccessSnackbar] = useState(false);
     let nodesToSave = [];
     const nodeTypes = useMemo(() => ({person: PersonNode, coupleUnion: CoupleUnionNode}), []);
 
@@ -37,39 +38,63 @@ const Tree = () => {
         []);
 
     const connectHandler = (params) => {
-        const target = params.target;
-        const targetHandle = params.targetHandle;
+        console.log('------INICI-EDGE----');
+        console.log(params);
+
         const newNodeId = (Math.random() * 1000000).toString();
 
-        addNodeBetweenCouple(params, newNodeId);
-        connectFirstPartEdge(params);
-        connectSecondPartEdge(params, target, targetHandle, newNodeId);
+        const sourceNode = params.source;
+        const targetMiddleNode = newNodeId;
+        const sourceMiddleNode = newNodeId;
+        const targetNode = params.target;
+
+        const sourceHandle = params.sourceHandle;
+        const targetHandle = params.targetHandle;
+        let targetMiddleNodeHandle = '';
+        let sourceMiddleNodeHandle = '';
+
+        if (sourceHandle === 'c') {
+            targetMiddleNodeHandle = 'a';
+        } else if (sourceHandle === 'a') {
+            targetMiddleNodeHandle = 'c';
+        }
+
+        if (targetHandle === 'a') {
+            sourceMiddleNodeHandle = 'c';
+        } else if (targetHandle === 'c') {
+            sourceMiddleNodeHandle = 'a';
+        }
+
+        console.log(sourceNode, sourceHandle, targetMiddleNode, targetMiddleNodeHandle);
+        console.log(sourceMiddleNode, sourceMiddleNodeHandle, targetNode, targetHandle);
+
+        addNodeBetweenCouple(newNodeId);
+        connectFirstPartEdge(sourceNode, sourceHandle, targetMiddleNode, targetMiddleNodeHandle);
+        connectSecondPartEdge(sourceMiddleNode, sourceMiddleNodeHandle, targetNode, targetHandle);
     }
 
-    const connectFirstPartEdge = useCallback((params) =>
-            setEdges((eds) => {
-
-
-                console.log('hola?');
-                console.log(params);
-                console.log(eds);
-
-                return addEdge(params, eds);
-            }),
+    const connectFirstPartEdge = useCallback((sourceNode, sourceHandle, targetMiddleNode, targetMiddleNodeHandle) =>
+        setEdges(prevState => {
+            return [...prevState, {
+                id: (Math.random() * 1000000).toString(),
+                source: sourceNode,
+                sourceHandle: sourceHandle,
+                target: targetMiddleNodeHandle,
+                targetHandle: targetMiddleNodeHandle
+            }];
+        }),
         []);
 
-    const connectSecondPartEdge = useCallback((params, target, targetHandle, newNodeId) =>
-            setEdges((eds) => {
-
-                params.source = newNodeId;
-                params.sourceHandle = 'c';
-                params.target = target;
-                params.targetHandle = targetHandle;
-
-                console.log(params);
-
-                return addEdge(params, eds);
-            }),
+    const connectSecondPartEdge = useCallback((sourceMiddleNode, sourceMiddleNodeHandle, targetNode, targetHandle) =>
+        setEdges(prevState => {
+            return [...prevState, {
+                id: (Math.random() * 1000000).toString(),
+                source: sourceMiddleNode,
+                sourceHandle: sourceMiddleNodeHandle,
+                target: targetNode,
+                targetHandle: targetHandle
+            }];
+        }),
         []);
 
     const changeEditModeHandler = () => {
@@ -82,16 +107,16 @@ const Tree = () => {
         // El node ja estarà guardat al backend, però actualitzarà les posicions i els edges a la DB.
         setEditable(false);
 
-        setOpenSuccessSnackbar(true);
+        setOpenSaveTreeSuccessSnackbar(true);
     }
 
     const addNodeHandler = () => {
         setShowAddNodeModal(true);
     }
 
-    const addNodeBetweenCouple = (params, nodeId) => {
-        params.target = nodeId;
-        params.targetHandle = 'a';
+    const addNodeBetweenCouple = (nodeId) => {
+        // params.target = nodeId;
+        // params.targetHandle = 'a';
 
         setNodes(prevState => {
             return [...prevState, {
@@ -106,15 +131,14 @@ const Tree = () => {
                 // 2. i una segona relació
             }];
         });
-        return nodeId;
     }
 
     const addNewNodeHandler = async (newNode) => {
+        props.onChangeLoadingState(true);
 
         const newNodeResponse = await saveNewNode(newNode);
         const dateContent = fillDateField(newNodeResponse);
 
-        console.log('afegint node a larbre');
         setNodes(prevState => {
             return [...prevState, {
                 id: newNodeResponse.id.toString(),
@@ -135,24 +159,31 @@ const Tree = () => {
                 isEditable: editable
             }];
         });
+        props.onChangeLoadingState(false);
     }
 
     const fillDateField = (newNode) => {
         let dateContent;
+        const birthDate = new Date(newNode.birthDate);
+        const deathDate = new Date(newNode.deathDate);
 
         if ((newNode.birthDate !== '' && newNode.birthDate !== null) &&
             (newNode.deathDate === '' || newNode.deathDate === null)) {
-            dateContent = <div style={{fontSize: 8}}>Data de naixement: {newNode.birthDate}</div>;
+
+            dateContent = <div style={{fontSize: 8}}>Data de naixement: {birthDate.toLocaleDateString("es-ES")}</div>;
         }
 
         if ((newNode.birthDate === '' || newNode.birthDate === null) &&
             (newNode.deathDate !== '' && newNode.deathDate !== null)) {
-            dateContent = <div style={{fontSize: 8}}>Data de mort: {newNode.deathDate}</div>;
+            dateContent = <div style={{fontSize: 8}}>Data de mort: {deathDate.toLocaleDateString("es-ES")}</div>;
         }
 
         if (newNode.birthDate !== '' && newNode.birthDate !== null &&
             newNode.deathDate !== '' && newNode.deathDate !== null) {
-            dateContent = <div style={{fontSize: 8}}>({newNode.birthDate}) - ({newNode.deathDate})</div>;
+            dateContent =
+                <div style={{fontSize: 8}}>
+                    ({birthDate.toLocaleDateString("es-ES")}) - ({deathDate.toLocaleDateString("es-ES")})
+                </div>;
         }
 
         if (newNode.manualInputDate.trim() !== '') {
@@ -178,6 +209,7 @@ const Tree = () => {
             const newNodeResponse = await response.json();
 
             console.log(newNodeResponse);
+            setOpenSaveNodeSuccessSnackbar(true);
 
             return newNodeResponse;
         } catch (e) {
@@ -206,12 +238,18 @@ const Tree = () => {
         setContextMenu(null);
     }
 
-    const closeSuccessSnackbarHandler = (event, reason) => {
+    const closeTreeSuccessSnackbarHandler = (event, reason) => {
         if (reason === 'clickaway') {
             return;
         }
+        setOpenSaveTreeSuccessSnackbar(false);
+    }
 
-        setOpenSuccessSnackbar(false);
+    const closeNodeSuccessSnackbarHandler = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setOpenSaveNodeSuccessSnackbar(false);
     }
 
     // Primer has de seleccionar el node que vols amb clic esquerre, i després pots eliminar amb clic dret
@@ -287,13 +325,23 @@ const Tree = () => {
                 </Card>
             </Container>
             <Snackbar
-                open={openSuccessSnackbar}
-                onClose={closeSuccessSnackbarHandler}
+                open={openSaveTreeSuccessSnackbar}
+                onClose={closeTreeSuccessSnackbarHandler}
                 autoHideDuration={6000}
                 anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
             >
-                <Alert onClose={closeSuccessSnackbarHandler} severity="success" sx={{width: '100%'}}>
+                <Alert onClose={closeTreeSuccessSnackbarHandler} severity="success" sx={{width: '100%'}}>
                     L'arbre s'ha guardat!
+                </Alert>
+            </Snackbar>
+            <Snackbar
+                open={openSaveNodeSuccessSnackbar}
+                onClose={closeNodeSuccessSnackbarHandler}
+                autoHideDuration={6000}
+                anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
+            >
+                <Alert onClose={closeTreeSuccessSnackbarHandler} severity="success" sx={{width: '100%'}}>
+                    La persona s'ha guardat
                 </Alert>
             </Snackbar>
             <CreateNodeModal showAddNodeModal={showAddNodeModal}
