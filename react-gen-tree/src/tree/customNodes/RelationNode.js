@@ -1,7 +1,7 @@
 import {Handle, Position} from "reactflow";
 
 
-const CoupleUnionNode = (props) => {
+const RelationNode = (props) => {
     const nodeStyle = {
         minWidth: '21px',
         minHeight: '16px',
@@ -44,4 +44,4 @@ const CoupleUnionNode = (props) => {
         </div>
     );
 }
-export default CoupleUnionNode;
+export default RelationNode;

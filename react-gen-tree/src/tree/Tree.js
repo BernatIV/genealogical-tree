@@ -1,6 +1,6 @@
 import {Button, Card, Col, Container, Row} from "react-bootstrap";
 import ReactFlow, {addEdge, applyEdgeChanges, applyNodeChanges, Background, Controls, MiniMap} from "reactflow";
-import {forwardRef, useCallback, useMemo, useState} from "react";
+import {forwardRef, useCallback, useEffect, useMemo, useState} from "react";
 import initialNodes from "./tree-data/nodes";
 import initialEdges from "./tree-data/edges";
 import './Tree.css';
@@ -9,7 +9,7 @@ import ContextMenu from "./contextMenu/ContextMenu";
 import {Snackbar} from "@mui/material";
 import MuiAlert from '@mui/material/Alert';
 import PersonNode from "./customNodes/PersonNode";
-import CoupleUnionNode from "./customNodes/CoupleUnionNode";
+import RelationNode from "./customNodes/RelationNode";
 
 const Alert = forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -18,15 +18,44 @@ const Alert = forwardRef(function Alert(props, ref) {
 const Tree = (props) => {
     const [editable, setEditable] = useState(false);
     const [showAddNodeModal, setShowAddNodeModal] = useState(false);
-    const [nodes, setNodes] = useState(initialNodes);
-    const [edges, setEdges] = useState(initialEdges);
+    const [nodes, setNodes] = useState([]);
+    const [edges, setEdges] = useState([]);
     const [contextMenu, setContextMenu] = useState(null);
     const [openSaveTreeSuccessSnackbar, setOpenSaveTreeSuccessSnackbar] = useState(false);
     const [openSaveNodeSuccessSnackbar, setOpenSaveNodeSuccessSnackbar] = useState(false);
-    let nodesToSave = [];
-    const nodeTypes = useMemo(() => ({person: PersonNode, coupleUnion: CoupleUnionNode}), []);
+    const nodeTypes = useMemo(() => ({person: PersonNode, relation: RelationNode}), []);
 
+    // *** USE EFFECT ***
+    useEffect(() => {
+        console.log('useEffect');
+        fetchNodesHandler();
+        fetchEdgesHandler();
 
+    }, []);
+
+    const fetchNodesHandler = async () => {
+        const response = await fetch('http://localhost:8080/api/tree/nodes');
+        if (!response.ok) {
+            throw new Error('Something went wrong');
+        }
+
+        const data = await response.json();
+        const nodesDto = initialNodes(data);
+        setNodes(nodesDto);
+    }
+
+    const fetchEdgesHandler = async () => {
+        const response = await fetch('http://localhost:8080/api/tree/edges');
+        if (!response.ok) {
+            throw new Error('Something went wrong');
+        }
+
+        const data = await response.json();
+        const edgesDto = initialEdges(data);
+        setEdges(edgesDto);
+    }
+
+    // *** HANDLERS ***
     const onNodesChange = useCallback((changes) =>
             setNodes((nds) =>
                 applyNodeChanges(changes, nds)),
@@ -51,7 +80,7 @@ const Tree = (props) => {
         }
 
         console.log(params);
-        const newNodeId = (Math.random() * 1000000).toString();
+        const newNodeId = (Math.random() * 1000000).toString() + '_new';
 
         const sourceNode = params.source;
         const targetMiddleNode = newNodeId;
@@ -81,40 +110,117 @@ const Tree = (props) => {
     }
 
     const connectFirstPartEdge = useCallback((sourceNode, sourceHandle, targetMiddleNode, targetMiddleNodeHandle) =>
-        setEdges(prevState => {
-            return [...prevState, {
-                id: (Math.random() * 1000000).toString(),
-                source: sourceNode,
-                sourceHandle: sourceHandle,
-                target: targetMiddleNode,
-                targetHandle: targetMiddleNodeHandle
-            }];
-        }),
+            setEdges(prevState => {
+                return [...prevState, {
+                    id: (Math.random() * 1000000).toString() + '_new',
+                    source: sourceNode,
+                    sourceHandle: sourceHandle,
+                    target: targetMiddleNode,
+                    targetHandle: targetMiddleNodeHandle
+                }];
+            }),
         []);
 
     const connectSecondPartEdge = useCallback((sourceMiddleNode, sourceMiddleNodeHandle, targetNode, targetHandle) =>
-        setEdges(prevState => {
-            return [...prevState, {
-                id: (Math.random() * 1000000).toString(),
-                source: sourceMiddleNode,
-                sourceHandle: sourceMiddleNodeHandle,
-                target: targetNode,
-                targetHandle: targetHandle
-            }];
-        }),
+            setEdges(prevState => {
+                return [...prevState, {
+                    id: (Math.random() * 1000000).toString() + '_new',
+                    source: sourceMiddleNode,
+                    sourceHandle: sourceMiddleNodeHandle,
+                    target: targetNode,
+                    targetHandle: targetHandle
+                }];
+            }),
         []);
 
     const changeEditModeHandler = () => {
         setEditable(!editable);
+        console.log('nodes');
         console.log(nodes);
+        console.log('edges');
+        console.log(edges);
     }
-    const saveNodesHandler = () => {
-        nodesToSave = nodes;
-        console.log(nodesToSave);
-        // El node ja estarà guardat al backend, però actualitzarà les posicions i els edges a la DB.
-        setEditable(false);
 
+    const saveNodesHandler = async () => {
+        console.log(nodes);
+        const nodesDto = fillNodesDto();
+        const edgesDto = fillEdgesDto();
+
+        const nodesResponse = await fetch('http://localhost:8080/api/tree/updateNodes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(nodesDto)
+        });
+
+        if (!nodesResponse.ok) {
+            console.log('something went wrong');
+            return;
+        }
+
+        const edgesResponse = await fetch('http://localhost:8080/api/tree/saveEdges', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(edgesDto)
+        });
+
+        if (!edgesResponse.ok) {
+            console.log('something went wrong');
+            return;
+        }
+
+        // fetchNodesHandler(); // TODO fix: No es crida :( es per solucionar que quan es guardi un node relation se li posi l'id que la DB ha assignat.
+        // fetchEdgesHandler(); // TODO fix: No es crida :(
+
+        setEditable(false);
         setOpenSaveTreeSuccessSnackbar(true);
+    }
+
+    const fillNodesDto = () => {
+        let nodesDto = [];
+
+        for (const node of nodes) {
+            if (node.type === 'person') {
+                nodesDto = [...nodesDto, {
+                    id: node.id,
+                    nodeType: node.type,
+                    personName: node.data.label.props.children[0].props.children,
+                    job: '',
+                    birthPlace: node.data.label.props.children[1].props.children,
+                    positionX: node.position.x,
+                    positionY: node.position.y
+                }];
+            } else if (node.type === 'relation') {
+                console.log('slice');
+                console.log(node.id.slice(-4));
+                nodesDto = [...nodesDto, {
+                    id: node.id.slice(-4) === '_new' ? null : node.id,
+                    nodeType: node.type,
+                    positionX: node.position.x,
+                    positionY: node.position.y
+                }];
+            }
+        }
+        return nodesDto;
+    }
+
+    const fillEdgesDto = () => {
+        let edgesDto = [];
+
+        for (const edge of edges) {
+            edgesDto = [...edgesDto, {
+                id: edge.id.slice(-4) === '_new' ? null : edge.id, // TODO: les relacions pares-fill també tenen id que comencen per reactflow_
+                source: edge.source,            // FIXME: Quan s'envien els ids dels nodes alguns encara tenen la id provisional
+                sourceHandle: edge.sourceHandle,
+                target: edge.target,            // FIXME: Quan s'envien els ids dels nodes alguns encara tenen la id provisional
+                targetHandle: edge.targetHandle
+            }];
+        }
+
+        return edgesDto;
     }
 
     const addNodeHandler = () => {
@@ -132,11 +238,11 @@ const Tree = (props) => {
         setNodes(prevState => {
             return [...prevState, {
                 id: nodeId,
-                type: 'coupleUnion',
+                type: 'relation',
                 data: {
                     label: <div style={{fontSize: 7}}>&nbsp;</div>
                 },
-                position: averagePosition
+                position: averagePosition,
             }];
         });
     }
@@ -147,7 +253,7 @@ const Tree = (props) => {
         const averageX = (sourceNodePosition.x + aproxWidth + targetNodePosition.x) / 2;
         const averageY = (sourceNodePosition.y + aproxHeight + targetNodePosition.y) / 2;
 
-        return { x: averageX, y: averageY };
+        return {x: averageX, y: averageY};
     }
 
     const addNewNodeHandler = async (newNode) => {

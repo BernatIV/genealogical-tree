@@ -1,6 +1,7 @@
 package com.marc.javagentree.tree.controller;
 
 import com.marc.javagentree.tree.business.TreeService;
+import com.marc.javagentree.tree.model.EdgeModel;
 import com.marc.javagentree.tree.model.NodeModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +20,14 @@ public class TreeController {
         this.treeService = treeService;
     }
 
-    @GetMapping
+    @GetMapping("nodes")
     public List<NodeModel> getNodes() {
         return treeService.getNodes();
+    }
+
+    @GetMapping("edges")
+    public List<EdgeModel> getEdges() {
+        return treeService.getEdges();
     }
 
     @PostMapping("addNode")
@@ -30,8 +36,13 @@ public class TreeController {
         return treeService.addNewNode(node);
     }
 
-    @PostMapping
-    public void updateNodePositionsAndEdges() {
+    @PostMapping("updateNodes")
+    public void updateNodes(@RequestBody List<NodeModel> nodes) {
+        treeService.updateNodes(nodes);
+    }
 
+    @PostMapping("saveEdges")
+    public void saveEdges(@RequestBody List<EdgeModel> edges) {
+        treeService.saveEdges(edges);
     }
 }

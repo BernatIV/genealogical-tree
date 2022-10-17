@@ -9,8 +9,8 @@ public class EdgeModel {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String source;
-    private String target;
     private String sourceHandle;
+    private String target;
     private String targetHandle;
 
     public EdgeModel() {
