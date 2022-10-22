@@ -19,11 +19,14 @@ public class NodeModel {
     private String manualInputDate;
     private Double positionX;
     private Double positionY;
+    private String temporaryId;
 
     public NodeModel() {
     }
 
-    public NodeModel(Long id, String nodeType, String personName, String job, String birthPlace, String deathPlace, Date birthDate, Date deathDate, String manualInputDate, Double positionX, Double positionY) {
+    public NodeModel(Long id, String nodeType, String personName, String job, String birthPlace, String deathPlace,
+                     Date birthDate, Date deathDate, String manualInputDate, Double positionX, Double positionY,
+                     String temporaryId) {
         this.id = id;
         this.nodeType = nodeType;
         this.personName = personName;
@@ -35,6 +38,7 @@ public class NodeModel {
         this.manualInputDate = manualInputDate;
         this.positionX = positionX;
         this.positionY = positionY;
+        this.temporaryId = temporaryId;
     }
 
     public Long getId() {
@@ -123,5 +127,13 @@ public class NodeModel {
 
     public void setPositionY(Double positionY) {
         this.positionY = positionY;
+    }
+
+    public String getTemporaryId() {
+        return temporaryId;
+    }
+
+    public void setTemporaryId(String temporaryId) {
+        this.temporaryId = temporaryId;
     }
 }

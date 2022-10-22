@@ -1,4 +1,4 @@
-const initialNodes = (nodes) => {
+const parseNodes = (nodes) => {
 
     let nodesDto = [];
 
@@ -22,7 +22,7 @@ const initialNodes = (nodes) => {
     return nodesDto;
 }
 
-export default initialNodes;
+export default parseNodes;
 
 
 /*

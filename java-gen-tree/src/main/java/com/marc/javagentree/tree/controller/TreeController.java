@@ -37,12 +37,12 @@ public class TreeController {
     }
 
     @PostMapping("updateNodes")
-    public void updateNodes(@RequestBody List<NodeModel> nodes) {
-        treeService.updateNodes(nodes);
+    public List<NodeModel> updateNodes(@RequestBody List<NodeModel> nodes) {
+        return treeService.updateNodes(nodes);
     }
 
     @PostMapping("saveEdges")
-    public void saveEdges(@RequestBody List<EdgeModel> edges) {
-        treeService.saveEdges(edges);
+    public List<EdgeModel> saveEdges(@RequestBody List<EdgeModel> edges) {
+        return treeService.saveEdges(edges);
     }
 }

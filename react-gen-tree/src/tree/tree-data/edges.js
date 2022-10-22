@@ -1,5 +1,5 @@
 
-const initialEdges = (edges) => {
+const parseEdges = (edges) => {
     let edgesDto = [];
 
     for (const edge of edges) {
@@ -13,7 +13,7 @@ const initialEdges = (edges) => {
     }
     return edgesDto;
 }
-export default initialEdges;
+export default parseEdges;
 
 /*
     [

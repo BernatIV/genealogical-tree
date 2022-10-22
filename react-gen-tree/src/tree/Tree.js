@@ -1,8 +1,8 @@
 import {Button, Card, Col, Container, Row} from "react-bootstrap";
 import ReactFlow, {addEdge, applyEdgeChanges, applyNodeChanges, Background, Controls, MiniMap} from "reactflow";
 import {forwardRef, useCallback, useEffect, useMemo, useState} from "react";
-import initialNodes from "./tree-data/nodes";
-import initialEdges from "./tree-data/edges";
+import parseNodes from "./tree-data/nodes";
+import parseEdges from "./tree-data/edges";
 import './Tree.css';
 import CreateNodeModal from "./modalWindows/CreateNodeModal";
 import ContextMenu from "./contextMenu/ContextMenu";
@@ -40,7 +40,7 @@ const Tree = (props) => {
         }
 
         const data = await response.json();
-        const nodesDto = initialNodes(data);
+        const nodesDto = parseNodes(data);
         setNodes(nodesDto);
     }
 
@@ -51,7 +51,7 @@ const Tree = (props) => {
         }
 
         const data = await response.json();
-        const edgesDto = initialEdges(data);
+        const edgesDto = parseEdges(data);
         setEdges(edgesDto);
     }
 
@@ -143,15 +143,15 @@ const Tree = (props) => {
 
     const saveNodesHandler = async () => {
         console.log(nodes);
-        const nodesDto = fillNodesDto();
-        const edgesDto = fillEdgesDto();
+        const nodesJavaObj = fillNodesDto();
+        const edgesJavaObj = fillEdgesDto();
 
         const nodesResponse = await fetch('http://localhost:8080/api/tree/updateNodes', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(nodesDto)
+            body: JSON.stringify(nodesJavaObj)
         });
 
         if (!nodesResponse.ok) {
@@ -159,12 +159,16 @@ const Tree = (props) => {
             return;
         }
 
+        const data = await nodesResponse.json();
+        const nodesDto = parseNodes(data);
+        setNodes(nodesDto);
+
         const edgesResponse = await fetch('http://localhost:8080/api/tree/saveEdges', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(edgesDto)
+            body: JSON.stringify(edgesJavaObj)
         });
 
         if (!edgesResponse.ok) {
@@ -172,8 +176,9 @@ const Tree = (props) => {
             return;
         }
 
-        // fetchNodesHandler(); // TODO fix: No es crida :( es per solucionar que quan es guardi un node relation se li posi l'id que la DB ha assignat.
-        // fetchEdgesHandler(); // TODO fix: No es crida :(
+        const edgesData = await edgesResponse.json();
+        const edgesDto = parseEdges(edgesData);
+        setEdges(edgesDto);
 
         setEditable(false);
         setOpenSaveTreeSuccessSnackbar(true);
@@ -194,14 +199,23 @@ const Tree = (props) => {
                     positionY: node.position.y
                 }];
             } else if (node.type === 'relation') {
-                console.log('slice');
-                console.log(node.id.slice(-4));
-                nodesDto = [...nodesDto, {
-                    id: node.id.slice(-4) === '_new' ? null : node.id,
-                    nodeType: node.type,
-                    positionX: node.position.x,
-                    positionY: node.position.y
-                }];
+                if (node.id.slice(-4) === '_new') {
+                    nodesDto = [...nodesDto, {
+                        id: null,
+                        temporaryId: node.id,
+                        nodeType: node.type,
+                        positionX: node.position.x,
+                        positionY: node.position.y
+                    }];
+                } else {
+                    nodesDto = [...nodesDto, {
+                        id: node.id,
+                        nodeType: node.type,
+                        positionX: node.position.x,
+                        positionY: node.position.y
+                    }];
+                }
+
             }
         }
         return nodesDto;
@@ -210,17 +224,25 @@ const Tree = (props) => {
     const fillEdgesDto = () => {
         let edgesDto = [];
 
+
         for (const edge of edges) {
             edgesDto = [...edgesDto, {
-                id: edge.id.slice(-4) === '_new' ? null : edge.id, // TODO: les relacions pares-fill també tenen id que comencen per reactflow_
-                source: edge.source,            // FIXME: Quan s'envien els ids dels nodes alguns encara tenen la id provisional
+                id: getEdgeIdOrNull(edge),
+                source: edge.source,
                 sourceHandle: edge.sourceHandle,
-                target: edge.target,            // FIXME: Quan s'envien els ids dels nodes alguns encara tenen la id provisional
+                target: edge.target,
                 targetHandle: edge.targetHandle
             }];
         }
 
         return edgesDto;
+    }
+
+    const getEdgeIdOrNull = (edge) => {
+        if (edge.id.slice(-4) === '_new' || edge.id.slice(0, 10) === 'reactflow_') {
+            return null;
+        }
+        return edge.id;
     }
 
     const addNodeHandler = () => {

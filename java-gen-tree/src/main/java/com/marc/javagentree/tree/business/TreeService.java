@@ -6,7 +6,11 @@ import com.marc.javagentree.tree.repository.EdgeRepository;
 import com.marc.javagentree.tree.repository.NodeRepository;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class TreeService {
@@ -31,13 +35,40 @@ public class TreeService {
         return nodeRepository.save(node);
     }
 
-    public void updateNodes(List<NodeModel> nodes) {
-        nodeRepository.saveAll(nodes);
-        // TODO: borrar els nodes que estiguin a la db pero no a l'objecte del param
+    public List<NodeModel> updateNodes(List<NodeModel> nodes) {
+        // nodeRepository.deleteAll(); // TODO ens falta borrar els nodes que ja no hi siguin
+        return nodeRepository.saveAll(nodes);
     }
 
-    public void saveEdges(List<EdgeModel> edges) {
-        edgeRepository.saveAll(edges);
-        // TODO: borrar els edges que estiguin a la db pero no a l'objecte del param
+    @Transactional
+    public List<EdgeModel> saveEdges(List<EdgeModel> edges) {
+
+        // Search for nodes with temporaryId
+        List<NodeModel> nodesWithTemporaryId = new ArrayList<>(nodeRepository.findAllNodesWithTemporaryId());
+        Map<String, Long> nodesIds = new HashMap<>();
+
+        nodesWithTemporaryId.forEach(node -> nodesIds.put(node.getTemporaryId(), node.getId()));
+
+        // Replace node temporaryId in Edge table with the one created for the DB
+        edges.stream()
+                .filter(edge -> {
+                    String[] parts = edge.getSource().split("_");
+                    return parts.length == 2 && parts[1].equals("new");
+                })
+                .forEach(edge -> edge.setSource(nodesIds.get(edge.getSource()).toString()));
+
+        edges.stream()
+                .filter(edge -> {
+                    String[] parts = edge.getTarget().split("_");
+                    return parts.length == 2 && parts[1].equals("new");
+                })
+                .forEach(edge -> edge.setTarget(nodesIds.get(edge.getTarget()).toString()));
+
+        // clean temporaryIds
+        nodesWithTemporaryId.forEach(node -> node.setTemporaryId(null));
+
+        // edgeRepository.deleteAll(); // TODO ens falta borrar els nodes que s'hagin borrat des del front
+
+        return edgeRepository.saveAll(edges);
     }
 }
