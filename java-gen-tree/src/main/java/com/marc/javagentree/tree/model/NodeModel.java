@@ -7,7 +7,15 @@ import java.util.Date;
 @Table(name = "NODE")
 public class NodeModel {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @SequenceGenerator(
+            name = "node_sequence",
+            sequenceName = "node_sequence",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "node_sequence"
+    )
     private Long id;
     private String nodeType;
     private String personName;

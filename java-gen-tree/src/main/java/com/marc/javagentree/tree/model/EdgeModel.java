@@ -6,7 +6,15 @@ import javax.persistence.*;
 @Table(name = "EDGE")
 public class EdgeModel {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @SequenceGenerator(
+            name = "edge_sequence",
+            sequenceName = "edge_sequence",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "edge_sequence"
+    )
     private Long id;
     private String source;
     private String sourceHandle;
