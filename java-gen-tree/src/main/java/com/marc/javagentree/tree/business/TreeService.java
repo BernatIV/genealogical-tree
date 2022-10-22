@@ -71,4 +71,12 @@ public class TreeService {
 
         return edgeRepository.saveAll(edges);
     }
+
+    public void deleteNode(Long nodeId) {
+        nodeRepository.deleteById(nodeId);
+    }
+
+    public void deleteEdges(List<EdgeModel> edges) {
+        edgeRepository.deleteAll(edges);
+    }
 }

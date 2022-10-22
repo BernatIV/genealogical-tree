@@ -23,6 +23,7 @@ const Tree = (props) => {
     const [contextMenu, setContextMenu] = useState(null);
     const [openSaveTreeSuccessSnackbar, setOpenSaveTreeSuccessSnackbar] = useState(false);
     const [openSaveNodeSuccessSnackbar, setOpenSaveNodeSuccessSnackbar] = useState(false);
+    const [openNodeRemovedSuccessSnackbar, setOpenNodeRemovedSuccessSnackbar] = useState(false);
     const nodeTypes = useMemo(() => ({person: PersonNode, relation: RelationNode}), []);
 
     // *** USE EFFECT ***
@@ -56,15 +57,63 @@ const Tree = (props) => {
     }
 
     // *** HANDLERS ***
-    const onNodesChange = useCallback((changes) =>
-            setNodes((nds) =>
-                applyNodeChanges(changes, nds)),
-        []);
+    const onNodesChange = useCallback((changes) => {
+        if (changes[0]?.type === 'remove' &&
+            changes[0].id.slice(-4) !== '_new') {
+            deleteNode(changes[0].id);
+        }
+        return setNodes((nds) => applyNodeChanges(changes, nds));
+    }, []);
 
-    const onEdgesChange = useCallback((changes) =>
-            setEdges((eds) =>
-                applyEdgeChanges(changes, eds)),
-        []);
+    const deleteNode = async (nodeId) => {
+        const response = await fetch('http://localhost:8080/api/tree/node/' + nodeId, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            setOpenNodeRemovedSuccessSnackbar(true);
+        }
+    }
+
+    const onEdgesChange = useCallback((changes) => {
+        console.log('edge changes');
+        console.log(changes);
+        if (changes[0].type === 'remove') {
+            deleteEdges(changes);
+        }
+        return setEdges((eds) => applyEdgeChanges(changes, eds));
+    }, []);
+
+    const deleteEdges = async (changes) => {
+        const edgesToDelete = fillEdgesWithIds(changes);
+
+        if (edgesToDelete.length === 0) {
+            return;
+        }
+
+        const response = fetch('http://localhost:8080/api/tree/deleteEdges', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(edgesToDelete)
+        });
+    }
+
+    const fillEdgesWithIds = (changes) => {
+        let edgesToDelete = [];
+
+        changes.forEach(change => {
+            if (change.id.slice(-4) !== '_new' &&
+                change.id.slice(0, 10) !== 'reactflow_') {
+                edgesToDelete = [...edgesToDelete, {
+                    id: change.id
+                }];
+            }
+        });
+
+        return edgesToDelete;
+    }
 
     const connectChildParentHandler = useCallback(
         (connection) => setEdges((eds) => addEdge(connection, eds)),
@@ -397,6 +446,13 @@ const Tree = (props) => {
         setOpenSaveNodeSuccessSnackbar(false);
     }
 
+    const closeNodeRemovedSuccessSnackbarHandler = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setOpenNodeRemovedSuccessSnackbar(false);
+    }
+
     // Primer has de seleccionar el node que vols amb clic esquerre, i després pots eliminar amb clic dret
     // TODO: Fer que no calgui clic esquerra
     const removeSelectedNodeHandler = () => {
@@ -485,8 +541,18 @@ const Tree = (props) => {
                 autoHideDuration={6000}
                 anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
             >
-                <Alert onClose={closeTreeSuccessSnackbarHandler} severity="success" sx={{width: '100%'}}>
+                <Alert onClose={closeNodeSuccessSnackbarHandler} severity="success" sx={{width: '100%'}}>
                     La persona s'ha guardat
+                </Alert>
+            </Snackbar>
+            <Snackbar
+                open={openNodeRemovedSuccessSnackbar}
+                onClose={closeNodeRemovedSuccessSnackbarHandler}
+                autoHideDuration={6000}
+                anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
+            >
+                <Alert onClose={closeNodeRemovedSuccessSnackbarHandler} severity="success" sx={{width: '100%'}}>
+                    El node s'ha esborrat
                 </Alert>
             </Snackbar>
             <CreateNodeModal showAddNodeModal={showAddNodeModal}

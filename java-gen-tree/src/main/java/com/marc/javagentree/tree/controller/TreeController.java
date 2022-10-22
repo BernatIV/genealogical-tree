@@ -45,4 +45,14 @@ public class TreeController {
     public List<EdgeModel> saveEdges(@RequestBody List<EdgeModel> edges) {
         return treeService.saveEdges(edges);
     }
+
+    @DeleteMapping("node/{nodeId}")
+    public void deleteNode(@PathVariable Long nodeId) {
+        treeService.deleteNode(nodeId);
+    }
+
+    @PostMapping("deleteEdges")
+    public void deleteEdge(@RequestBody List<EdgeModel> edges) {
+        treeService.deleteEdges(edges);
+    }
 }
