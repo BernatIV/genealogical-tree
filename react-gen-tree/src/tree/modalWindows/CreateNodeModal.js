@@ -74,8 +74,16 @@ const CreateNodeModal = (props) => {
         });
     }
 
+    const handleKeypress = e => {
+        //it triggers by pressing the enter key
+        console.log('key is pressed!');
+        if (e.keyCode === 13) {
+            saveNewNodeHandler();
+        }
+    };
+
     return (
-        <Modal show={props.showAddNodeModal} onHide={closeAddNodeModalHandler}>
+        <Modal show={props.showAddNodeModal} onHide={closeAddNodeModalHandler} onKeyDown={handleKeypress}>
             <Modal.Header closeButton>
                 <Modal.Title>Afegeix node</Modal.Title>
             </Modal.Header>
