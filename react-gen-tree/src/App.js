@@ -34,7 +34,7 @@ export default App;
 
 
 /**
- * TODO 1: Customitzar els nodes perquè tinguin un punt al lateral, només si es vol, i puguin fer les relacions de parelles.
+ * FET 1: Customitzar els nodes perquè tinguin un punt al lateral, només si es vol, i puguin fer les relacions de parelles.
  *          - PersonNode
  *              - que pugui ser 'selectable'
  *          - Quan es crea una relació, l'event que dispara crei una relació més amb un node de "casament" al mig
@@ -47,7 +47,7 @@ export default App;
  *
  * FET 3: Quan surti del mode edició tamb es bloquegi el candau que té el <Controls/>
  *
- * TODO 4: Comunicar-se amb el backend.
+ * FET 4: Comunicar-se amb el backend.
  *      I. Carregar els nodes i edges de la base de dades en carregar-se el component.
  *      II. Guardar un node a la base de dades quan premi el botó guardar.
  *
@@ -60,18 +60,15 @@ export default App;
  * FET 7: Els Handles han de ser més grans per poder clicar-los més ràpidament
  *
  * TODO 8: En mode no edició que els Handles siguin invisibles
+ *
+ * TODO 9: Deploy backend to AWS server
  */
 
 
-/**
- *  PSEUDO-CODE for connecting two parents
+/** --- DOCS---
  *
- * 1. onConnect -> fire event
- *
- * 2. if the two node connected are parents -> create a handle in the middle of the edge.
- *      if not, then it means it is targeting children therefore we don't need it.
- *
- * 3.
+ * - DEPLOY FRONT TO GH-PAGES
+ *   https://github.com/gitname/react-gh-pages
  *
  *
  */

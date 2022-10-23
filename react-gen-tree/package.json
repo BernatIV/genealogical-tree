@@ -1,6 +1,7 @@
 {
   "name": "arbre-gen-react-flow-11",
   "version": "0.1.0",
+  "homepage": "https://bernativ.github.io/genealogical-tree",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.10.4",
@@ -20,6 +21,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -40,5 +43,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "gh-pages": "^4.0.0"
   }
 }

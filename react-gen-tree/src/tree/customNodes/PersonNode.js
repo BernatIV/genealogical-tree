@@ -72,8 +72,8 @@ const PersonNode = (props) => {
 export default PersonNode;
 
 /**
- * TODO que els handlers siguin ben grans per poder clicar-los rapids.
- *  Solució -> https://github.com/wbkd/react-flow/discussions/1180
+ *  MAKE BIGGER HANDLES
+ *  Solution -> https://github.com/wbkd/react-flow/discussions/1180
  */
 
 /*

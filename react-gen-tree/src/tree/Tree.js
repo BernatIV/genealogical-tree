@@ -484,12 +484,12 @@ const Tree = (props) => {
     }
 
     // Primer has de seleccionar el node que vols amb clic esquerre, i després pots eliminar amb clic dret
-    // TODO: Fer que no calgui clic esquerra
+    // Fer que no calgui clic esquerra
     const removeSelectedNodeHandler = () => {
         // has d'estar en mode editable perq pugui funcionar veure quin esta seleccionat
         for (const node of nodes) {
             if (node.selected === true) {
-                // TODO borrar el node
+                // borrar el node
                 break;
             }
         }
