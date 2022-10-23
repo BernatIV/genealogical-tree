@@ -36,7 +36,6 @@ public class TreeService {
     }
 
     public List<NodeModel> updateNodes(List<NodeModel> nodes) {
-        // nodeRepository.deleteAll(); // TODO ens falta borrar els nodes que ja no hi siguin
         return nodeRepository.saveAll(nodes);
     }
 
@@ -66,8 +65,6 @@ public class TreeService {
 
         // clean temporaryIds
         nodesWithTemporaryId.forEach(node -> node.setTemporaryId(null));
-
-        // edgeRepository.deleteAll(); // TODO ens falta borrar els nodes que s'hagin borrat des del front
 
         return edgeRepository.saveAll(edges);
     }
