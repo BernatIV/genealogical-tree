@@ -4,7 +4,13 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "NODE")
+@Table(
+        name = "NODE",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "temporary_id_unique",
+                        columnNames = "temporary_id")
+        })
 public class NodeModel {
     @Id
     @SequenceGenerator(
@@ -16,17 +22,44 @@ public class NodeModel {
             strategy = GenerationType.SEQUENCE,
             generator = "node_sequence"
     )
+    @Column(
+            name = "id",
+            updatable = false
+    )
     private Long id;
+
+    @Column(name = "node_type")
     private String nodeType;
+
+    @Column(name = "person_name")
     private String personName;
+
+    @Column(name = "job")
     private String job;
+
+    @Column(name = "birth_place")
     private String birthPlace;
+
+    @Column(name = "death_place")
     private String deathPlace;
+
+    @Column(name = "birth_date")
     private Date birthDate;
+
+    @Column(name = "death_date")
     private Date deathDate;
+
+    @Column(name = "manual_input_date")
     private String manualInputDate;
+
+    @Column(name = "position_x")
     private Double positionX;
+
+    @Column(name = "position_y")
     private Double positionY;
+
+    @Column(name = "temporary_id",
+            unique = true)
     private String temporaryId;
 
     public NodeModel() {

@@ -15,10 +15,22 @@ public class EdgeModel {
             strategy = GenerationType.SEQUENCE,
             generator = "edge_sequence"
     )
+    @Column(
+            name = "id",
+            updatable = false
+    )
     private Long id;
+
+    @Column(name = "source")
     private String source;
+
+    @Column(name = "source_handle")
     private String sourceHandle;
+
+    @Column(name = "target")
     private String target;
+
+    @Column(name = "target_handle")
     private String targetHandle;
 
     public EdgeModel() {
