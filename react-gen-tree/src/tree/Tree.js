@@ -24,36 +24,47 @@ const Tree = (props) => {
     const [openSaveTreeSuccessSnackbar, setOpenSaveTreeSuccessSnackbar] = useState(false);
     const [openSaveNodeSuccessSnackbar, setOpenSaveNodeSuccessSnackbar] = useState(false);
     const [openNodeRemovedSuccessSnackbar, setOpenNodeRemovedSuccessSnackbar] = useState(false);
+    const [openSavingErrorSnackbar, setOpenSavingErrorSnackbar] = useState(false);
+    const [openRetrievingErrorSnackbar, setOpenRetrievingErrorSnackbar] = useState(false);
     const nodeTypes = useMemo(() => ({person: PersonNode, relation: RelationNode}), []);
 
     // *** USE EFFECT ***
     useEffect(() => {
-        console.log('useEffect');
         fetchNodesHandler();
         fetchEdgesHandler();
 
     }, []);
 
     const fetchNodesHandler = async () => {
-        const response = await fetch('http://localhost:8080/api/tree/nodes');
-        if (!response.ok) {
-            throw new Error('Something went wrong');
-        }
+        try {
+            const response = await fetch('http://localhost:8080/api/tree/nodes');
 
-        const data = await response.json();
-        const nodesDto = parseNodes(data);
-        setNodes(nodesDto);
+            if (!response.ok) {
+                throw new Error('Something went wrong');
+            }
+
+            const data = await response.json();
+            const nodesDto = parseNodes(data);
+            setNodes(nodesDto);
+        } catch (e) {
+            setOpenRetrievingErrorSnackbar(true);
+        }
     }
 
     const fetchEdgesHandler = async () => {
-        const response = await fetch('http://localhost:8080/api/tree/edges');
-        if (!response.ok) {
-            throw new Error('Something went wrong');
+        try {
+            const response = await fetch('http://localhost:8080/api/tree/edges');
+            if (!response.ok) {
+                throw new Error('Something went wrong');
+            }
+
+            const data = await response.json();
+            const edgesDto = parseEdges(data);
+            setEdges(edgesDto);
+        } catch (e) {
+            setOpenRetrievingErrorSnackbar(true);
         }
 
-        const data = await response.json();
-        const edgesDto = parseEdges(data);
-        setEdges(edgesDto);
     }
 
     // *** HANDLERS ***
@@ -66,18 +77,20 @@ const Tree = (props) => {
     }, []);
 
     const deleteNode = async (nodeId) => {
-        const response = await fetch('http://localhost:8080/api/tree/node/' + nodeId, {
-            method: 'DELETE'
-        });
+        try {
+            const response = await fetch('http://localhost:8080/api/tree/node/' + nodeId, {
+                method: 'DELETE'
+            });
 
-        if (response.ok) {
-            setOpenNodeRemovedSuccessSnackbar(true);
+            if (response.ok) {
+                setOpenNodeRemovedSuccessSnackbar(true);
+            }
+        } catch (e) {
+            setOpenSavingErrorSnackbar(true);
         }
     }
 
     const onEdgesChange = useCallback((changes) => {
-        console.log('edge changes');
-        console.log(changes);
         if (changes[0].type === 'remove') {
             deleteEdges(changes);
         }
@@ -91,13 +104,21 @@ const Tree = (props) => {
             return;
         }
 
-        const response = fetch('http://localhost:8080/api/tree/deleteEdges', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(edgesToDelete)
-        });
+        try {
+            const response = await fetch('http://localhost:8080/api/tree/deleteEdges', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(edgesToDelete)
+            });
+
+            if (response.ok) {
+                setOpenNodeRemovedSuccessSnackbar(true);
+            }
+        } catch (e) {
+            setOpenSavingErrorSnackbar(true);
+        }
     }
 
     const fillEdgesWithIds = (changes) => {
@@ -184,53 +205,50 @@ const Tree = (props) => {
 
     const changeEditModeHandler = () => {
         setEditable(!editable);
-        console.log('nodes');
-        console.log(nodes);
-        console.log('edges');
-        console.log(edges);
     }
 
     const saveNodesHandler = async () => {
-        console.log(nodes);
         const nodesJavaObj = fillNodesDto();
         const edgesJavaObj = fillEdgesDto();
 
-        const nodesResponse = await fetch('http://localhost:8080/api/tree/updateNodes', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(nodesJavaObj)
-        });
+        try {
+            const nodesResponse = await fetch('http://localhost:8080/api/tree/updateNodes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(nodesJavaObj)
+            });
 
-        if (!nodesResponse.ok) {
-            console.log('something went wrong');
-            return;
+            if (!nodesResponse.ok) {
+                throw new Error('Something went wrong!');
+            }
+
+            const data = await nodesResponse.json();
+            const nodesDto = parseNodes(data);
+            setNodes(nodesDto);
+
+            const edgesResponse = await fetch('http://localhost:8080/api/tree/saveEdges', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(edgesJavaObj)
+            });
+
+            if (!edgesResponse.ok) {
+                throw new Error('Something went wrong!');
+            }
+
+            const edgesData = await edgesResponse.json();
+            const edgesDto = parseEdges(edgesData);
+            setEdges(edgesDto);
+
+            setEditable(false);
+            setOpenSaveTreeSuccessSnackbar(true);
+        } catch (e) {
+            setOpenSavingErrorSnackbar(true);
         }
-
-        const data = await nodesResponse.json();
-        const nodesDto = parseNodes(data);
-        setNodes(nodesDto);
-
-        const edgesResponse = await fetch('http://localhost:8080/api/tree/saveEdges', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(edgesJavaObj)
-        });
-
-        if (!edgesResponse.ok) {
-            console.log('something went wrong');
-            return;
-        }
-
-        const edgesData = await edgesResponse.json();
-        const edgesDto = parseEdges(edgesData);
-        setEdges(edgesDto);
-
-        setEditable(false);
-        setOpenSaveTreeSuccessSnackbar(true);
     }
 
     const fillNodesDto = () => {
@@ -401,12 +419,10 @@ const Tree = (props) => {
             }
 
             const newNodeResponse = await response.json();
-
-            console.log(newNodeResponse);
             setOpenSaveNodeSuccessSnackbar(true);
-
             return newNodeResponse;
         } catch (e) {
+            setOpenSavingErrorSnackbar(true);
             throw new Error(e.message);
         }
     }
@@ -451,6 +467,20 @@ const Tree = (props) => {
             return;
         }
         setOpenNodeRemovedSuccessSnackbar(false);
+    }
+
+    const closeSavingErrorSnackbarHandler = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setOpenSavingErrorSnackbar(false);
+    }
+
+    const closeRetrievingErrorSnackbarHandler = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setOpenRetrievingErrorSnackbar(false);
     }
 
     // Primer has de seleccionar el node que vols amb clic esquerre, i després pots eliminar amb clic dret
@@ -552,7 +582,27 @@ const Tree = (props) => {
                 anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
             >
                 <Alert onClose={closeNodeRemovedSuccessSnackbarHandler} severity="success" sx={{width: '100%'}}>
-                    El node s'ha esborrat
+                    L'element s'ha esborrat
+                </Alert>
+            </Snackbar>
+            <Snackbar
+                open={openSavingErrorSnackbar}
+                onClose={closeSavingErrorSnackbarHandler}
+                autoHideDuration={6000}
+                anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
+            >
+                <Alert onClose={closeSavingErrorSnackbarHandler} severity="error" sx={{width: '100%'}}>
+                    Hi ha hagut un error guardant el canvi :/
+                </Alert>
+            </Snackbar>
+            <Snackbar
+                open={openRetrievingErrorSnackbar}
+                onClose={closeRetrievingErrorSnackbarHandler}
+                autoHideDuration={6000}
+                anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
+            >
+                <Alert onClose={closeRetrievingErrorSnackbarHandler} severity="error" sx={{width: '100%'}}>
+                    No es poden recuperar les dades ara mateix :/
                 </Alert>
             </Snackbar>
             <CreateNodeModal showAddNodeModal={showAddNodeModal}
