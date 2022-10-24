@@ -11,6 +11,9 @@ import MuiAlert from '@mui/material/Alert';
 import PersonNode from "./customNodes/PersonNode";
 import RelationNode from "./customNodes/RelationNode";
 
+const ENDPOINT = 'http://ec2-13-37-107-32.eu-west-3.compute.amazonaws.com:8080/';
+// const ENDPOINT = 'http://localhost:8080/';
+
 const Alert = forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
@@ -37,7 +40,7 @@ const Tree = (props) => {
 
     const fetchNodesHandler = async () => {
         try {
-            const response = await fetch('http://localhost:8080/api/tree/nodes');
+            const response = await fetch(ENDPOINT + 'api/tree/nodes');
 
             if (!response.ok) {
                 throw new Error('Something went wrong');
@@ -53,7 +56,7 @@ const Tree = (props) => {
 
     const fetchEdgesHandler = async () => {
         try {
-            const response = await fetch('http://localhost:8080/api/tree/edges');
+            const response = await fetch(ENDPOINT + 'api/tree/edges');
             if (!response.ok) {
                 throw new Error('Something went wrong');
             }
@@ -78,7 +81,7 @@ const Tree = (props) => {
 
     const deleteNode = async (nodeId) => {
         try {
-            const response = await fetch('http://localhost:8080/api/tree/node/' + nodeId, {
+            const response = await fetch(ENDPOINT + 'api/tree/node/' + nodeId, {
                 method: 'DELETE'
             });
 
@@ -105,7 +108,7 @@ const Tree = (props) => {
         }
 
         try {
-            const response = await fetch('http://localhost:8080/api/tree/deleteEdges', {
+            const response = await fetch(ENDPOINT + 'api/tree/deleteEdges', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -212,7 +215,7 @@ const Tree = (props) => {
         const edgesJavaObj = fillEdgesDto();
 
         try {
-            const nodesResponse = await fetch('http://localhost:8080/api/tree/updateNodes', {
+            const nodesResponse = await fetch(ENDPOINT + 'api/tree/updateNodes', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -228,7 +231,7 @@ const Tree = (props) => {
             const nodesDto = parseNodes(data);
             setNodes(nodesDto);
 
-            const edgesResponse = await fetch('http://localhost:8080/api/tree/saveEdges', {
+            const edgesResponse = await fetch(ENDPOINT + 'api/tree/saveEdges', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -406,7 +409,7 @@ const Tree = (props) => {
 
     const saveNewNode = async (newNode) => {
         try {
-            const response = await fetch('http://localhost:8080/api/tree/addNode', {
+            const response = await fetch(ENDPOINT + 'api/tree/addNode', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
