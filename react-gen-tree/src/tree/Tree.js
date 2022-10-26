@@ -11,7 +11,8 @@ import MuiAlert from '@mui/material/Alert';
 import PersonNode from "./customNodes/PersonNode";
 import RelationNode from "./customNodes/RelationNode";
 
-const ENDPOINT = 'http://ec2-13-37-107-32.eu-west-3.compute.amazonaws.com:8080/';
+const ENDPOINT = 'http://arbregenealogic.com:8080/'
+// const ENDPOINT = 'http://ec2-13-37-107-32.eu-west-3.compute.amazonaws.com:8080/';
 // const ENDPOINT = 'http://localhost:8080/';
 
 const Alert = forwardRef(function Alert(props, ref) {
