@@ -1,7 +1,7 @@
 {
   "name": "arbre-gen-react-flow-11",
   "version": "0.1.0",
-  "homepage": "https://arbregenealogic.com/",
+  "homepage": "https://bernativ.github.io/genealogical-tree",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.10.4",
