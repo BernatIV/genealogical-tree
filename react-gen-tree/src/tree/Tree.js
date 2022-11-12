@@ -41,7 +41,9 @@ const Tree = (props) => {
 
     const fetchNodesHandler = async () => {
         try {
-            const response = await fetch(ENDPOINT + 'api/tree/nodes');
+            const response = await fetch(ENDPOINT + 'api/tree/nodes',  {
+                credentials: 'include'
+            });
 
             if (!response.ok) {
                 throw new Error('Something went wrong');
@@ -57,7 +59,9 @@ const Tree = (props) => {
 
     const fetchEdgesHandler = async () => {
         try {
-            const response = await fetch(ENDPOINT + 'api/tree/edges');
+            const response = await fetch(ENDPOINT + 'api/tree/edges', {
+                credentials: 'include'
+            });
             if (!response.ok) {
                 throw new Error('Something went wrong');
             }
@@ -83,6 +87,7 @@ const Tree = (props) => {
     const deleteNode = async (nodeId) => {
         try {
             const response = await fetch(ENDPOINT + 'api/tree/node/' + nodeId, {
+                credentials: 'include',
                 method: 'DELETE'
             });
 
@@ -110,6 +115,7 @@ const Tree = (props) => {
 
         try {
             const response = await fetch(ENDPOINT + 'api/tree/deleteEdges', {
+                credentials: 'include',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -217,6 +223,7 @@ const Tree = (props) => {
 
         try {
             const nodesResponse = await fetch(ENDPOINT + 'api/tree/updateNodes', {
+                credentials: 'include',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -233,6 +240,7 @@ const Tree = (props) => {
             setNodes(nodesDto);
 
             const edgesResponse = await fetch(ENDPOINT + 'api/tree/saveEdges', {
+                credentials: 'include',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -411,6 +419,7 @@ const Tree = (props) => {
     const saveNewNode = async (newNode) => {
         try {
             const response = await fetch(ENDPOINT + 'api/tree/addNode', {
+                credentials: 'include',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
