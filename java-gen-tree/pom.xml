@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.marc</groupId>
 	<artifactId>java-gen-tree</artifactId>
-	<version>0.0.8-SNAPSHOT-8080-port-TLS-certificate</version>
+	<version>0.0.13-SNAPSHOT</version>
 	<name>java-gen-tree</name>
 	<description>Backend for this genealogical tree</description>
 	<properties>

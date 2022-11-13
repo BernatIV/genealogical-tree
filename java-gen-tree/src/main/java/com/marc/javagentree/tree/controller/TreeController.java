@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "https://arbregenealogic.com/")
+@CrossOrigin(
+        origins = "https://arbregenealogic.com",
+        allowCredentials = "true")
 @RestController
 @RequestMapping("api/tree")
 public class TreeController {
