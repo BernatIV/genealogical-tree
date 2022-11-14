@@ -10,6 +10,9 @@ import Login from "./login/login";
 function App() {
     const [loading, setLoading] = useState(false);
     const [currentTab, setCurrentTab] = useState('tree');
+    const [darkMode, setDarkMode] = useState(true);
+    const [backgroundColorClass, setBackgroundColorClass] = useState('app-background-light');
+    const [backgroundColor, setBackgroundColor] = useState('white');
 
     const changeTabHandler = (tabId) => {
         setCurrentTab(tabId)
@@ -19,12 +22,29 @@ function App() {
         setLoading(isLoading);
     }
 
+    const toggleDarkMode = (checked) => {
+        setDarkMode(checked);
+        console.log(checked);
+
+        if (checked) {
+            setBackgroundColorClass('app-background-light');
+            setBackgroundColor('white');
+        } else {
+            setBackgroundColorClass('app-background-dark');
+            setBackgroundColor('#212529');
+            // setBackgroundColor('#282c34');
+        }
+    };
+
     return (
-        <div>
-            <NavBarApp onChangeTab={changeTabHandler} />
+        <div className={backgroundColorClass}>
+            <NavBarApp onChangeTab={changeTabHandler}
+                       onToggleDarkMode={toggleDarkMode}
+                       darkMode={darkMode}/>
             {loading && <img src={loadingImg} className="App-logo" alt="loading"/>}
-            {currentTab === 'tree' && <Tree onChangeLoadingState={changeLoadingStateHandler} />}
-            {currentTab === 'guide' && <Guide />}
+            {currentTab === 'tree' && <Tree onChangeLoadingState={changeLoadingStateHandler}
+                                            backgroundColor={backgroundColor}/>}
+            {currentTab === 'guide' && <Guide darkMode={darkMode}/>}
             {currentTab === 'login' && <Login/>}
         </div>
     );

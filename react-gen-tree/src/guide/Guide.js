@@ -1,9 +1,11 @@
 import {Col, Container, Row} from "react-bootstrap";
 import './Guide.css';
 
-const Guide = () => {
+const Guide = (props) => {
+
+
     return (
-        <Container>
+        <Container className={!props.darkMode ? 'guide-dark' : ''}>
             <Row>
                 <Col md>
                     <h1 className="margin-top">&#127807; Arbre genealògic</h1>

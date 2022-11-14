@@ -1,8 +1,22 @@
 import {Container, Nav, Navbar} from "react-bootstrap";
-import TreeLogo from '../images/tree-logo.svg';
+import TreeLogoLight from '../images/tree-logo-light.svg';
+import TreeLogoDark from '../images/tree-logo-dark.svg';
+import {DarkModeSwitch} from "react-toggle-dark-mode";
+import {useState} from "react";
 
 
 const NavBarApp = (props) => {
+    const [bgTheme, setBgTheme] = useState('light');
+
+    const toggleDarkMode = (checked) => {
+        props.onToggleDarkMode(checked);
+
+        if (checked) {
+            setBgTheme('light');
+        } else {
+            setBgTheme('dark');
+        }
+    };
 
     const goToHomeTabHandler = () => {
         props.onChangeTab('tree');
@@ -17,12 +31,12 @@ const NavBarApp = (props) => {
     }
 
     return(
-        <Navbar bg="light" expand="lg">
+        <Navbar bg={bgTheme} variant={bgTheme} expand="lg">
             <Container>
                 <Navbar.Brand href="#home" onClick={goToHomeTabHandler}>
                     <img
                         alt=""
-                        src={TreeLogo}
+                        src={props.darkMode ? TreeLogoLight : TreeLogoDark}
                         width="30"
                         height="30"
                         className="d-inline-block align-top"
@@ -46,6 +60,14 @@ const NavBarApp = (props) => {
                         {/*</NavDropdown>*/}
                     </Nav>
                     <Nav>
+                        <DarkModeSwitch
+                            style={{ marginRight: '1rem' }}
+                            checked={props.darkMode}
+                            onChange={toggleDarkMode}
+                            size={30}
+                            moonColor={'#4f4f4f'}
+                            sunColor={'#f2f2f2'}
+                        />
                         <Nav.Link href="#login" onClick={goToLoginTabHandler}>Entrar</Nav.Link>
                     </Nav>
                 </Navbar.Collapse>

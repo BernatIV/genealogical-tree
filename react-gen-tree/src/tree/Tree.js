@@ -41,7 +41,7 @@ const Tree = (props) => {
 
     const fetchNodesHandler = async () => {
         try {
-            const response = await fetch(ENDPOINT + 'api/tree/nodes',  {
+            const response = await fetch(ENDPOINT + 'api/tree/nodes', {
                 credentials: 'include'
             });
 
@@ -548,7 +548,7 @@ const Tree = (props) => {
                 <Card className="tree-size card-shadow"
                       onContextMenu={contextMenuHandler}>
                     <ReactFlow
-                        // style={{background: '#696851'}} // Possibles colors: 696851, CDE8BE
+                        style={{background: props.backgroundColor}} // Possibles colors: 696851, CDE8BE
                         nodes={nodes}
                         onNodesChange={editable ? onNodesChange : null}
                         edges={edges}
@@ -615,7 +615,7 @@ const Tree = (props) => {
                 anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
             >
                 <Alert onClose={closeRetrievingErrorSnackbarHandler} severity="error" sx={{width: '100%'}}>
-                    No es poden recuperar les dades ara mateix :/
+                    No es poden recuperar les dades ara mateix
                 </Alert>
             </Snackbar>
             <CreateNodeModal showAddNodeModal={showAddNodeModal}

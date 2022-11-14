@@ -34,6 +34,17 @@
     color: white;
 }
 
+.app-background-light {
+    /*background-color: whitesmoke;*/
+    background-color: white;
+    min-height: 100vh;
+}
+
+.app-background-dark {
+    background-color: #282c34;
+    min-height: 100vh;
+}
+
 .App-link {
     color: #61dafb;
 }
