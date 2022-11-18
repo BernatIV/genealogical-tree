@@ -1,18 +1,26 @@
 {
   "files": {
-    "main.css": "/static/css/main.53a015ff.css",
-    "main.js": "/static/js/main.50adccde.js",
+    "main.css": "/static/css/main.f8a3573e.css",
+    "main.js": "/static/js/main.0bcbab5e.js",
     "static/js/787.766f420c.chunk.js": "/static/js/787.766f420c.chunk.js",
+    "static/media/fa-solid-900.ttf": "/static/media/fa-solid-900.b1a653db79258eeccc5d.ttf",
+    "static/media/fa-brands-400.ttf": "/static/media/fa-brands-400.450a5c898f0b184b968b.ttf",
+    "static/media/fa-solid-900.woff2": "/static/media/fa-solid-900.41c0f706d8ce93933771.woff2",
+    "static/media/fa-brands-400.woff2": "/static/media/fa-brands-400.3ac6859b28be946745f9.woff2",
+    "static/media/fa-regular-400.ttf": "/static/media/fa-regular-400.3cd9fb8fcec4ad0f99d4.ttf",
+    "static/media/fa-regular-400.woff2": "/static/media/fa-regular-400.1f3772178d9e5bed38a6.woff2",
     "static/media/tree-logo-dark.svg": "/static/media/tree-logo-dark.6424ca838ec63c4fc184c9a41ed5a880.svg",
     "static/media/tree-logo-light.svg": "/static/media/tree-logo-light.fe3951e1db26759bdd3bdade30c902ab.svg",
     "static/media/arbre.jpg": "/static/media/arbre.f40120e25ebd0456a659.jpg",
+    "static/media/fa-v4compatibility.ttf": "/static/media/fa-v4compatibility.e314b618134d5be20996.ttf",
+    "static/media/fa-v4compatibility.woff2": "/static/media/fa-v4compatibility.4ee7f902d88f819e251c.woff2",
     "index.html": "/index.html",
-    "main.53a015ff.css.map": "/static/css/main.53a015ff.css.map",
-    "main.50adccde.js.map": "/static/js/main.50adccde.js.map",
+    "main.f8a3573e.css.map": "/static/css/main.f8a3573e.css.map",
+    "main.0bcbab5e.js.map": "/static/js/main.0bcbab5e.js.map",
     "787.766f420c.chunk.js.map": "/static/js/787.766f420c.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.53a015ff.css",
-    "static/js/main.50adccde.js"
+    "static/css/main.f8a3573e.css",
+    "static/js/main.0bcbab5e.js"
   ]
 }
