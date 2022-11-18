@@ -1,0 +1,29 @@
+.cascading-right {
+    margin-right: -50px;
+}
+
+.padding-card {
+    padding: 4rem;
+}
+
+@media (max-width: 900px) {
+    .cascading-right {
+        margin-right: 0;
+    }
+    .padding-card {
+        padding: 2rem;
+    }
+}
+
+@media (max-width: 500px) {
+    .side-image {
+        display: none;
+    }
+    .padding-card {
+        padding: 1rem;
+    }
+}
+
+.mouse-pointer {
+    cursor: pointer;
+}
