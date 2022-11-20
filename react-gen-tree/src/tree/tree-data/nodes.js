@@ -11,6 +11,7 @@ const parseNodes = (nodes) => {
                     <div>
                         <div>{node.personName}</div>
                         <div style={{fontSize: 8}}>{node.birthPlace}</div>
+                        <div style={{fontSize: 8}}>{node.job}</div>
                     </div>
                     :
                     <div style={{fontSize: 7}}>&nbsp;</div>

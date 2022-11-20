@@ -34,7 +34,6 @@ public class TreeController {
 
     @PostMapping("addNode")
     public NodeModel addNewNode(@RequestBody NodeModel node) {
-        System.out.println("Hola primo");
         return treeService.addNewNode(node);
     }
 

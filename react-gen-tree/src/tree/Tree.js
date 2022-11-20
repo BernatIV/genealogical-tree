@@ -272,8 +272,8 @@ const Tree = (props) => {
                     id: node.id,
                     nodeType: node.type,
                     personName: node.data.label.props.children[0].props.children,
-                    job: '',
                     birthPlace: node.data.label.props.children[1].props.children,
+                    job: node.data.label.props.children[2].props.children,
                     positionX: node.position.x,
                     positionY: node.position.y
                 }];

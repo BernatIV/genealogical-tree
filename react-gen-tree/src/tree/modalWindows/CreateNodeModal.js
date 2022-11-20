@@ -76,7 +76,6 @@ const CreateNodeModal = (props) => {
 
     const handleKeypress = e => {
         //it triggers by pressing the enter key
-        console.log('key is pressed!');
         if (e.keyCode === 13) {
             saveNewNodeHandler();
         }

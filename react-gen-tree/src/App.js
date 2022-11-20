@@ -24,7 +24,6 @@ function App() {
 
     const toggleDarkMode = (checked) => {
         setDarkMode(checked);
-        console.log(checked);
 
         if (checked) {
             setBackgroundColorClass('app-background-light');
