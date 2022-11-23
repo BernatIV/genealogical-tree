@@ -1,0 +1,5 @@
+
+.dark-background:hover {
+    backdrop-filter: brightness(95%);
+    border-radius: 10px;
+}

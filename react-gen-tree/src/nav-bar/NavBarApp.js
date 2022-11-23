@@ -3,6 +3,8 @@ import TreeLogoLight from '../images/tree-logo-light.svg';
 import TreeLogoDark from '../images/tree-logo-dark.svg';
 import {DarkModeSwitch} from "react-toggle-dark-mode";
 import {useState} from "react";
+import './NavBarApp.css'
+import {Tooltip} from "@mui/material";
 
 
 const NavBarApp = (props) => {
@@ -30,10 +32,13 @@ const NavBarApp = (props) => {
         props.onChangeTab('login');
     }
 
-    return(
+    return (
         <Navbar bg={bgTheme} variant={bgTheme} expand="lg">
             <Container>
-                <Navbar.Brand href="#home" onClick={goToHomeTabHandler}>
+                <Navbar.Brand
+                    className="dark-background"
+                    href="#home"
+                    onClick={goToHomeTabHandler}>
                     <img
                         alt=""
                         src={props.darkMode ? TreeLogoLight : TreeLogoDark}
@@ -43,10 +48,14 @@ const NavBarApp = (props) => {
                     />{' '}
                     Arbre genealògic
                 </Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                <Navbar.Toggle aria-controls="basic-navbar-nav"/>
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="me-auto">
-                        <Nav.Link href="#guide" onClick={goToGuideTabHandler}>Guia</Nav.Link>
+                        <Tooltip title="Explicació">
+                            <Nav.Link href="#guide"
+                                      className="dark-background"
+                                      onClick={goToGuideTabHandler}>Guia</Nav.Link>
+                        </Tooltip>
                         {/*<NavDropdown title="Dropdown" id="basic-nav-dropdown">*/}
                         {/*    <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>*/}
                         {/*    <NavDropdown.Item href="#action/3.2">*/}
@@ -60,15 +69,27 @@ const NavBarApp = (props) => {
                         {/*</NavDropdown>*/}
                     </Nav>
                     <Nav>
-                        <DarkModeSwitch
-                            style={{ marginRight: '1rem' }}
-                            checked={props.darkMode}
-                            onChange={toggleDarkMode}
-                            size={30}
-                            moonColor={'#4f4f4f'}
-                            sunColor={'#f2f2f2'}
-                        />
-                        <Nav.Link href="#login" onClick={goToLoginTabHandler}>Entrar</Nav.Link>
+                        <Tooltip title="Mode fosc" arrow>
+                            <div>
+                                <DarkModeSwitch
+                                    className="dark-background"
+                                    style={{marginRight: '1rem'}}
+                                    checked={props.darkMode}
+                                    onChange={toggleDarkMode}
+                                    size={30}
+                                    moonColor={'#4f4f4f'}
+                                    sunColor={'#f2f2f2'}
+                                />
+                            </div>
+                        </Tooltip>
+
+                        <Tooltip title="Accedir amb l'usuari">
+                            <Nav.Link
+                                className="dark-background"
+                                href="#login"
+                                onClick={goToLoginTabHandler}
+                            >Entrar</Nav.Link>
+                        </Tooltip>
                     </Nav>
                 </Navbar.Collapse>
             </Container>
