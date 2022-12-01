@@ -9,14 +9,17 @@ import {Tooltip} from "@mui/material";
 
 const NavBarApp = (props) => {
     const [bgTheme, setBgTheme] = useState('light');
+    const [darkModeTooltipText, setDarkModeTooltipText] = useState('Activa mode fosc'); // Enable Dark Mode
 
     const toggleDarkMode = (checked) => {
         props.onToggleDarkMode(checked);
 
         if (checked) {
             setBgTheme('light');
+            setDarkModeTooltipText('Activa mode fosc');  // Enable Dark Mode
         } else {
             setBgTheme('dark');
+            setDarkModeTooltipText('Desactiva mode fosc');  // Disable Dark Mode
         }
     };
 
@@ -69,7 +72,7 @@ const NavBarApp = (props) => {
                         {/*</NavDropdown>*/}
                     </Nav>
                     <Nav>
-                        <Tooltip title="Mode fosc" arrow>
+                        <Tooltip title={darkModeTooltipText} arrow>
                             <div>
                                 <DarkModeSwitch
                                     className="dark-background"
@@ -83,7 +86,7 @@ const NavBarApp = (props) => {
                             </div>
                         </Tooltip>
 
-                        <Tooltip title="Accedir amb l'usuari">
+                        <Tooltip title="Accedir com a usuari" arrow>
                             <Nav.Link
                                 className="dark-background"
                                 href="#login"
@@ -100,3 +103,5 @@ export default NavBarApp;
 
 // Docs
 // https://react-bootstrap.github.io/components/navbar/
+
+// https://mui.com/material-ui/react-tooltip/

@@ -75,7 +75,13 @@ const Tree = (props) => {
 
     }
 
+
     // *** HANDLERS ***
+
+    // Tots els events handlers:
+    // llegir-los perq alguns em podena anar molt bé. onNodesDelete seria millor que utilitzar l'if que estic fent just a sota.
+    // https://reactflow.dev/docs/api/react-flow-props/#event-handlers
+
     const onNodesChange = useCallback((changes) => {
         if (changes[0]?.type === 'remove' &&
             changes[0].id.slice(-4) !== '_new') {
@@ -83,6 +89,32 @@ const Tree = (props) => {
         }
         return setNodes((nds) => applyNodeChanges(changes, nds));
     }, []);
+
+    const onEdgesChange = useCallback((changes) => {
+        if (changes[0].type === 'remove') {
+            deleteEdges(changes);
+        }
+        return setEdges((eds) => applyEdgeChanges(changes, eds));
+    }, []);
+
+    // Per implementar
+    const onNodeDoubleClick = (event, node) => {
+        if (editable) {
+            // fer el doble click que vol el papa!
+            console.log('double click', node);
+        }
+    };
+
+    // Per implementar
+    const onNodeContextMenu = (event, node) => {
+        if (editable) {
+            console.log('context menu', node);
+            // TODO: implementar el delete del context menu, i també l'editar que serà el mateix que el doble click.
+            // ara que tinc això ja sé de quin node estem parlant quan obro el context menu!
+        }
+    };
+
+
 
     const deleteNode = async (nodeId) => {
         try {
@@ -98,13 +130,6 @@ const Tree = (props) => {
             setOpenSavingErrorSnackbar(true);
         }
     }
-
-    const onEdgesChange = useCallback((changes) => {
-        if (changes[0].type === 'remove') {
-            deleteEdges(changes);
-        }
-        return setEdges((eds) => applyEdgeChanges(changes, eds));
-    }, []);
 
     const deleteEdges = async (changes) => {
         const edgesToDelete = fillEdgesWithIds(changes);
@@ -444,6 +469,11 @@ const Tree = (props) => {
 
     const contextMenuHandler = (event) => {
         event.preventDefault();
+
+        if (!editable) {
+            return;
+        }
+
         setContextMenu(
             contextMenu === null
                 ? {
@@ -496,14 +526,36 @@ const Tree = (props) => {
         setOpenRetrievingErrorSnackbar(false);
     }
 
-    // Primer has de seleccionar el node que vols amb clic esquerre, i després pots eliminar amb clic dret
-    // Fer que no calgui clic esquerra
     const removeSelectedNodeHandler = () => {
-        // has d'estar en mode editable perq pugui funcionar veure quin esta seleccionat
+        // El problema és que no es selecciona directament amb click dret. Has de seleccionar primer amb l'esquerra i llavors ja ho pots fer.
+        // TODO: Fer que no calgui clic esquerra
+        if (editable) {
+            // fer un altre mètode per detectar a traves de onNodeContextMenu quin node has clicat per borrar amb el click dret.
+        }
+    }
+
+    const handleKeypress = e => {
+        if (e.keyCode === 46) { // delete key (backspace is already handled by reactflow)
+            if (editable) {
+                removeSelectedNode();
+            }
+        }
+    };
+
+    const removeSelectedNode = () => {
+        let selectedNode = findSelectedNode();
+        console.log(selectedNode);
+        if (selectedNode !== null) {
+            setNodes(prevState => {
+                return prevState.filter(node => node.id !== selectedNode.id);
+            });
+        }
+    }
+
+    const findSelectedNode = () => {
         for (const node of nodes) {
             if (node.selected === true) {
-                // borrar el node
-                break;
+                return node;
             }
         }
     }
@@ -546,7 +598,8 @@ const Tree = (props) => {
                 <div style={{marginTop: '1rem'}}/>
 
                 <Card className="tree-size card-shadow"
-                      onContextMenu={contextMenuHandler}>
+                      onContextMenu={contextMenuHandler}
+                      onKeyDown={handleKeypress}>
                     <ReactFlow
                         style={{background: props.backgroundColor}} // Possibles colors: 696851, CDE8BE
                         nodes={nodes}
@@ -554,6 +607,8 @@ const Tree = (props) => {
                         edges={edges}
                         onEdgesChange={editable ? onEdgesChange : null}
                         onConnect={editable ? connectHandler : null}
+                        onNodeDoubleClick={onNodeDoubleClick}
+                        onNodeContextMenu={onNodeContextMenu}
                         nodeTypes={nodeTypes}
                         fitView
                     >

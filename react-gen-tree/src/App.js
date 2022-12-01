@@ -12,7 +12,7 @@ function App() {
     const [currentTab, setCurrentTab] = useState('tree');
     const [darkMode, setDarkMode] = useState(true);
     const [backgroundColorClass, setBackgroundColorClass] = useState('app-background-light');
-    const [backgroundColor, setBackgroundColor] = useState('white');
+    const [backgroundColor, setBackgroundColor] = useState('rgba(235,242,250,0.51)');
 
     const changeTabHandler = (tabId) => {
         setCurrentTab(tabId)
@@ -27,7 +27,7 @@ function App() {
 
         if (checked) {
             setBackgroundColorClass('app-background-light');
-            setBackgroundColor('white');
+            setBackgroundColor('rgba(235,242,250,0.51)');
         } else {
             setBackgroundColorClass('app-background-dark');
             setBackgroundColor('#212529');
@@ -40,11 +40,11 @@ function App() {
             <NavBarApp onChangeTab={changeTabHandler}
                        onToggleDarkMode={toggleDarkMode}
                        darkMode={darkMode}/>
-            {loading && <img src={loadingImg} className="App-logo" alt="loading"/>}
             {currentTab === 'tree' && <Tree onChangeLoadingState={changeLoadingStateHandler}
                                             backgroundColor={backgroundColor}/>}
             {currentTab === 'guide' && <Guide darkMode={darkMode}/>}
             {currentTab === 'login' && <Login/>}
+            {loading && <img src={loadingImg} className="App-logo" alt="loading"/>}
         </div>
     );
 }

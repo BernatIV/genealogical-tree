@@ -2,8 +2,6 @@
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 .tree-size {
-    /*width: 85rem;*/
-    /*height: 48rem;*/
     width: available;
-    height: 48rem;
+    height: 80vh;
 }
