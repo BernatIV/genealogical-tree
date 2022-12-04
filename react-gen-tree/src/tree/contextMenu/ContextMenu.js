@@ -2,6 +2,11 @@ import {Menu, MenuItem} from "@mui/material";
 
 const ContextMenu = (props) => {
 
+    const editNodeHandler = () => {
+        props.onCloseContextMenu();
+        props.onEditSelectedNode();
+    }
+
     const removeNodeHandler = () => {
         props.onCloseContextMenu();
         props.onRemoveSelectedNode();
@@ -18,7 +23,7 @@ const ContextMenu = (props) => {
                     : undefined
             }
         >
-            <MenuItem onClick={props.onCloseContextMenu}>Editar</MenuItem>
+            <MenuItem onClick={editNodeHandler}>Editar</MenuItem>
             <MenuItem onClick={removeNodeHandler}>Eliminar</MenuItem>
         </Menu>
     );

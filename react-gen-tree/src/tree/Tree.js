@@ -33,6 +33,7 @@ const Tree = (props) => {
     const [openNodeRemovedSuccessSnackbar, setOpenNodeRemovedSuccessSnackbar] = useState(false);
     const [openSavingErrorSnackbar, setOpenSavingErrorSnackbar] = useState(false);
     const [openRetrievingErrorSnackbar, setOpenRetrievingErrorSnackbar] = useState(false);
+    const [nodeContextMenuActions, setNodeContextMenuActions] = useState();
     const nodeTypes = useMemo(() => ({person: PersonNode, relation: RelationNode}), []);
 
     useEffect(() => {
@@ -64,15 +65,14 @@ const Tree = (props) => {
         if (editable) {
             // fer el doble click que vol el papa!
             console.log('double click', node);
+            // editar que serà el mateix que el doble click.
         }
     };
 
     // Per implementar
     const onNodeContextMenu = (event, node) => {
         if (editable) {
-            console.log('context menu', node);
-            // TODO: implementar el delete del context menu, i també l'editar que serà el mateix que el doble click.
-            // ara que tinc això ja sé de quin node estem parlant quan obro el context menu!
+            contextMenuHandler(event, node);
         }
     };
 
@@ -289,7 +289,6 @@ const Tree = (props) => {
             return;
         }
 
-        console.log(params);
         const newNodeId = (Math.random() * 1000000).toString() + '_new';
 
         const sourceNode = params.source;
@@ -415,10 +414,8 @@ const Tree = (props) => {
     const addNodeBetweenCouple = (sourceNodeId, targetNodeId, nodeId) => {
         const sourceNode = nodes.find(node => node.id === sourceNodeId);
         const targetNode = nodes.find(node => node.id === targetNodeId);
-        console.log(sourceNode);
 
         const averagePosition = calculateAveragePosition(sourceNode.position, targetNode.position);
-        console.log(averagePosition);
 
         setNodes(prevState => {
             return [...prevState, {
@@ -475,12 +472,15 @@ const Tree = (props) => {
 
     const closeAddNodeModalHandler = () => setShowAddNodeModal(false);
 
-    const contextMenuHandler = (event) => {
+    const contextMenuHandler = (event, node) => {
         event.preventDefault();
 
-        if (!editable) {
+        if (!editable || node === undefined) {
             return;
         }
+
+        // we save the node which will be the target of the Context Menu actions
+        setNodeContextMenuActions(node);
 
         setContextMenu(
             contextMenu === null
@@ -534,11 +534,13 @@ const Tree = (props) => {
         setOpenRetrievingErrorSnackbar(false);
     }
 
-    const removeSelectedNodeHandler = () => {
-        // El problema és que no es selecciona directament amb click dret. Has de seleccionar primer amb l'esquerra i llavors ja ho pots fer.
-        // TODO: Fer que no calgui clic esquerra
+    const editNodeContextMenuHandler = () => {
+        console.log('edit');
+    }
+
+    const removeNodeContextMenuHandler = () => {
         if (editable) {
-            // fer un altre mètode per detectar a traves de onNodeContextMenu quin node has clicat per borrar amb el click dret.
+            removeSelectedNode(nodeContextMenuActions);
         }
     }
 
@@ -550,8 +552,10 @@ const Tree = (props) => {
         }
     };
 
-    const removeSelectedNode = () => {
-        let selectedNode = findSelectedNode();
+    const removeSelectedNode = (selectedNode) => {
+        if (selectedNode === undefined) {
+            selectedNode = findSelectedNode();
+        }
 
         if (selectedNode !== null && selectedNode !== undefined) {
             setNodes(prevState => {
@@ -610,7 +614,6 @@ const Tree = (props) => {
                                     onClick={addNodeHandler}>
                                 Afegir persona
                             </Button>}
-                        {/*Animació d'aquest botó: que aparegui cap a la dreta. Icona +*/}
                     </Col>
                     <Col md style={{textAlign: 'right'}}>
                         {editable &&
@@ -647,7 +650,8 @@ const Tree = (props) => {
                         contextMenuProp={contextMenu}
                         onOpenContextMenu={contextMenuHandler}
                         onCloseContextMenu={closeContextMenuHandler}
-                        onRemoveSelectedNode={removeSelectedNodeHandler}/>
+                        onEditSelectedNode={editNodeContextMenuHandler}
+                        onRemoveSelectedNode={removeNodeContextMenuHandler}/>
                 </Card>
             </Container>
             <Snackbar
