@@ -20,6 +20,9 @@ const Alert = forwardRef(function Alert(props, ref) {
 });
 
 const Tree = (props) => {
+
+    // *** HOOKS ***
+
     const [editable, setEditable] = useState(false);
     const [showAddNodeModal, setShowAddNodeModal] = useState(false);
     const [nodes, setNodes] = useState([]);
@@ -32,12 +35,55 @@ const Tree = (props) => {
     const [openRetrievingErrorSnackbar, setOpenRetrievingErrorSnackbar] = useState(false);
     const nodeTypes = useMemo(() => ({person: PersonNode, relation: RelationNode}), []);
 
-    // *** USE EFFECT ***
     useEffect(() => {
         fetchNodesHandler();
         fetchEdgesHandler();
 
     }, []);
+
+
+    // *** HANDLERS ***
+
+    const onNodesChange = useCallback((changes) => {
+        if (changes[0]?.type === 'remove' &&
+            changes[0].id.slice(-4) !== '_new') {
+            deleteNode(changes[0].id);
+        }
+        return setNodes((nds) => applyNodeChanges(changes, nds));
+    }, []);
+
+    const onEdgesChange = useCallback((changes) => {
+        if (changes[0].type === 'remove') {
+            deleteEdges(changes);
+        }
+        return setEdges((eds) => applyEdgeChanges(changes, eds));
+    }, []);
+
+    // Per implementar
+    const onNodeDoubleClick = (event, node) => {
+        if (editable) {
+            // fer el doble click que vol el papa!
+            console.log('double click', node);
+        }
+    };
+
+    // Per implementar
+    const onNodeContextMenu = (event, node) => {
+        if (editable) {
+            console.log('context menu', node);
+            // TODO: implementar el delete del context menu, i també l'editar que serà el mateix que el doble click.
+            // ara que tinc això ja sé de quin node estem parlant quan obro el context menu!
+        }
+    };
+
+    const onNodesDelete = (elements) => {
+        if (editable) {
+            // jo no ho utilitzaria. ho deixaria aixi com està
+        }
+    }
+
+
+    // *** API CALLS ***
 
     const fetchNodesHandler = async () => {
         try {
@@ -74,47 +120,6 @@ const Tree = (props) => {
         }
 
     }
-
-
-    // *** HANDLERS ***
-
-    // Tots els events handlers:
-    // llegir-los perq alguns em podena anar molt bé. onNodesDelete seria millor que utilitzar l'if que estic fent just a sota.
-    // https://reactflow.dev/docs/api/react-flow-props/#event-handlers
-
-    const onNodesChange = useCallback((changes) => {
-        if (changes[0]?.type === 'remove' &&
-            changes[0].id.slice(-4) !== '_new') {
-            deleteNode(changes[0].id);
-        }
-        return setNodes((nds) => applyNodeChanges(changes, nds));
-    }, []);
-
-    const onEdgesChange = useCallback((changes) => {
-        if (changes[0].type === 'remove') {
-            deleteEdges(changes);
-        }
-        return setEdges((eds) => applyEdgeChanges(changes, eds));
-    }, []);
-
-    // Per implementar
-    const onNodeDoubleClick = (event, node) => {
-        if (editable) {
-            // fer el doble click que vol el papa!
-            console.log('double click', node);
-        }
-    };
-
-    // Per implementar
-    const onNodeContextMenu = (event, node) => {
-        if (editable) {
-            console.log('context menu', node);
-            // TODO: implementar el delete del context menu, i també l'editar que serà el mateix que el doble click.
-            // ara que tinc això ja sé de quin node estem parlant quan obro el context menu!
-        }
-    };
-
-
 
     const deleteNode = async (nodeId) => {
         try {
@@ -155,6 +160,106 @@ const Tree = (props) => {
             setOpenSavingErrorSnackbar(true);
         }
     }
+
+    const saveNodesHandler = async () => {
+        const nodesJavaObj = fillNodesDto();
+        const edgesJavaObj = fillEdgesDto();
+
+        try {
+            const nodesResponse = await fetch(ENDPOINT + 'api/tree/updateNodes', {
+                credentials: 'include',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(nodesJavaObj)
+            });
+
+            if (!nodesResponse.ok) {
+                throw new Error('Something went wrong!');
+            }
+
+            const data = await nodesResponse.json();
+            const nodesDto = parseNodes(data);
+            setNodes(nodesDto);
+
+            const edgesResponse = await fetch(ENDPOINT + 'api/tree/saveEdges', {
+                credentials: 'include',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(edgesJavaObj)
+            });
+
+            if (!edgesResponse.ok) {
+                throw new Error('Something went wrong!');
+            }
+
+            const edgesData = await edgesResponse.json();
+            const edgesDto = parseEdges(edgesData);
+            setEdges(edgesDto);
+
+            setEditable(false);
+            setOpenSaveTreeSuccessSnackbar(true);
+        } catch (e) {
+            setOpenSavingErrorSnackbar(true);
+        }
+    }
+
+    const addNewNodeHandler = async (newNode) => {
+        props.onChangeLoadingState(true);
+
+        const newNodeResponse = await saveNewNode(newNode);
+        const dateContent = fillDateField(newNodeResponse);
+
+        setNodes(prevState => {
+            return [...prevState, {
+                id: newNodeResponse.id.toString(),
+                type: 'person',
+                data: {
+                    label:
+                        <div>
+                            <div>{newNodeResponse.personName.trim()}</div>
+                            <div style={{fontSize: 8}}>{newNodeResponse.birthPlace.trim()}</div>
+                            <div style={{fontSize: 8}}>{newNodeResponse.job.trim()}</div>
+                            {dateContent}
+                        </div>
+                },
+                position: {
+                    x: newNodeResponse.positionX,
+                    y: newNodeResponse.positionY
+                },
+                isEditable: editable
+            }];
+        });
+        props.onChangeLoadingState(false);
+    }
+
+    const saveNewNode = async (newNode) => {
+        try {
+            const response = await fetch(ENDPOINT + 'api/tree/addNode', {
+                credentials: 'include',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newNode)
+            });
+
+            if (!response.ok) {
+                throw new Error('Something went wrong!');
+            }
+
+            const newNodeResponse = await response.json();
+            setOpenSaveNodeSuccessSnackbar(true);
+            return newNodeResponse;
+        } catch (e) {
+            setOpenSavingErrorSnackbar(true);
+            throw new Error(e.message);
+        }
+    }
+
 
     const fillEdgesWithIds = (changes) => {
         let edgesToDelete = [];
@@ -240,52 +345,6 @@ const Tree = (props) => {
 
     const changeEditModeHandler = () => {
         setEditable(!editable);
-    }
-
-    const saveNodesHandler = async () => {
-        const nodesJavaObj = fillNodesDto();
-        const edgesJavaObj = fillEdgesDto();
-
-        try {
-            const nodesResponse = await fetch(ENDPOINT + 'api/tree/updateNodes', {
-                credentials: 'include',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(nodesJavaObj)
-            });
-
-            if (!nodesResponse.ok) {
-                throw new Error('Something went wrong!');
-            }
-
-            const data = await nodesResponse.json();
-            const nodesDto = parseNodes(data);
-            setNodes(nodesDto);
-
-            const edgesResponse = await fetch(ENDPOINT + 'api/tree/saveEdges', {
-                credentials: 'include',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(edgesJavaObj)
-            });
-
-            if (!edgesResponse.ok) {
-                throw new Error('Something went wrong!');
-            }
-
-            const edgesData = await edgesResponse.json();
-            const edgesDto = parseEdges(edgesData);
-            setEdges(edgesDto);
-
-            setEditable(false);
-            setOpenSaveTreeSuccessSnackbar(true);
-        } catch (e) {
-            setOpenSavingErrorSnackbar(true);
-        }
     }
 
     const fillNodesDto = () => {
@@ -382,35 +441,6 @@ const Tree = (props) => {
         return {x: averageX, y: averageY};
     }
 
-    const addNewNodeHandler = async (newNode) => {
-        props.onChangeLoadingState(true);
-
-        const newNodeResponse = await saveNewNode(newNode);
-        const dateContent = fillDateField(newNodeResponse);
-
-        setNodes(prevState => {
-            return [...prevState, {
-                id: newNodeResponse.id.toString(),
-                type: 'person',
-                data: {
-                    label:
-                        <div>
-                            <div>{newNodeResponse.personName.trim()}</div>
-                            <div style={{fontSize: 8}}>{newNodeResponse.birthPlace.trim()}</div>
-                            <div style={{fontSize: 8}}>{newNodeResponse.job.trim()}</div>
-                            {dateContent}
-                        </div>
-                },
-                position: {
-                    x: newNodeResponse.positionX,
-                    y: newNodeResponse.positionY
-                },
-                isEditable: editable
-            }];
-        });
-        props.onChangeLoadingState(false);
-    }
-
     const fillDateField = (newNode) => {
         let dateContent;
         const birthDate = new Date(newNode.birthDate);
@@ -441,29 +471,7 @@ const Tree = (props) => {
         return dateContent
     }
 
-    const saveNewNode = async (newNode) => {
-        try {
-            const response = await fetch(ENDPOINT + 'api/tree/addNode', {
-                credentials: 'include',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(newNode)
-            });
 
-            if (!response.ok) {
-                throw new Error('Something went wrong!');
-            }
-
-            const newNodeResponse = await response.json();
-            setOpenSaveNodeSuccessSnackbar(true);
-            return newNodeResponse;
-        } catch (e) {
-            setOpenSavingErrorSnackbar(true);
-            throw new Error(e.message);
-        }
-    }
 
     const closeAddNodeModalHandler = () => setShowAddNodeModal(false);
 
@@ -544,11 +552,14 @@ const Tree = (props) => {
 
     const removeSelectedNode = () => {
         let selectedNode = findSelectedNode();
-        console.log(selectedNode);
-        if (selectedNode !== null) {
+
+        if (selectedNode !== null && selectedNode !== undefined) {
             setNodes(prevState => {
                 return prevState.filter(node => node.id !== selectedNode.id);
             });
+            deleteNode(selectedNode.id);
+            const edgesToDelete = findRelatedNodeEdges(selectedNode.id);
+            deleteEdges(edgesToDelete);
         }
     }
 
@@ -558,6 +569,21 @@ const Tree = (props) => {
                 return node;
             }
         }
+    }
+
+    const findRelatedNodeEdges = (nodeId) => {
+        let edgesToDelete = [];
+
+        for (const edge of edges) {
+            if (edge.source === nodeId || edge.target === nodeId) {
+                edgesToDelete = [...edgesToDelete, { id: edge.id }];
+
+                setEdges(prevState => {
+                    return prevState.filter(edgeItem => edgeItem.id !== edge.id);
+                });
+            }
+        }
+        return edgesToDelete;
     }
 
     return (
@@ -609,6 +635,7 @@ const Tree = (props) => {
                         onConnect={editable ? connectHandler : null}
                         onNodeDoubleClick={onNodeDoubleClick}
                         onNodeContextMenu={onNodeContextMenu}
+                        onNodesDelete={onNodesDelete}
                         nodeTypes={nodeTypes}
                         fitView
                     >
@@ -688,4 +715,8 @@ export default Tree;
  *
  * Snackbar / toast
  * https://mui.com/material-ui/react-snackbar/
+ *
+ * // Events handlers:
+ * // https://reactflow.dev/docs/api/react-flow-props/#event-handlers
+ * // https://reactflow.dev/docs/examples/interaction/interaction-props/
  */
