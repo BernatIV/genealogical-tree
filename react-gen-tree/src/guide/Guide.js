@@ -25,6 +25,9 @@ const Guide = (props) => {
                         <h3>Esborra un enllaç</h3>
                         <p>Selecciona un enllaç (fent un clic) i tecla "esborrar".</p>
                     </div>
+                    <br/>
+                    <br/>
+                    <p>Si veus errors, o tens propostes per fer aquest projecte millor, escriu-me a <b>marc.mane.duatis@gmail.com</b>.</p>
 
                     {/*<p><strong>Afegir un node</strong><br/>Botó editar -> Afegir node.</p>*/}
                     {/*<p><strong>Eliminar un node</strong><br/>Selecciona un node (fent un clic) i tecla "esborrar".</p>*/}
