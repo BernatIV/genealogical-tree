@@ -23,7 +23,8 @@ const ContextMenu = (props) => {
                     : undefined
             }
         >
-            <MenuItem onClick={editNodeHandler}>Editar</MenuItem>
+            {props.nodeContextMenu?.type === 'person' &&
+                <MenuItem onClick={editNodeHandler}>Editar</MenuItem>}
             <MenuItem onClick={removeNodeHandler}>Eliminar</MenuItem>
         </Menu>
     );

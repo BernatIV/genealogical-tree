@@ -1,8 +1,11 @@
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 
-const CreateNodeModal = (props) => {
-    const [newNode, setNewNode] = useState({
+const EditNodeModal = (props) => {
+
+    const [enterDateManually, setEnterDateManually] = useState(false);
+    const [node, setNode] = useState({
+        id: '',
         personName: '',
         job: '',
         birthPlace: '',
@@ -11,43 +14,63 @@ const CreateNodeModal = (props) => {
         deathDate: '',
         manualInputDate: '',
         nodeType: 'person',
-        positionX: 0,
-        positionY: 0
     });
-    const [enterDateManually, setEnterDateManually] = useState(false);
+
+    // We pass the node data to the modal window once the user selects the node
+    useEffect(() => {
+        if (props.showEditNodeModal) {
+            loadNodeData();
+        }
+    }, [props.showEditNodeModal]);
+
+
+
+    const loadNodeData = () => {
+        setNode((prevState) => {
+            return {
+                ...prevState,
+                id: props.node.id,
+                personName: props.node?.data.label.props.children[0].props.children,
+                job: props.node?.data.label.props.children[2].props.children,
+                birthPlace: props.node.data.label.props.children[1].props.children,
+                positionX: props.node.position.x,
+                positionY: props.node.position.y,
+            }
+        });
+    }
 
     const nameChangeHandler = (event) => {
-        setNewNode(prevState => {
+        setNode(prevState => {
             return {...prevState, personName: event.target.value};
         });
     }
 
     const birthPlaceChangeHandler = (event) => {
-        setNewNode(prevState => {
+        setNode(prevState => {
             return {...prevState, birthPlace: event.target.value};
         });
     }
 
     const jobChangeHandler = (event) => {
-        setNewNode(prevState => {
+        setNode(prevState => {
             return {...prevState, job: event.target.value};
         });
     }
 
     const birthDateChangeHandler = (event) => {
-        setNewNode(prevState => {
+        setNode(prevState => {
             return {...prevState, birthDate: event.target.value};
         });
     }
 
     const deathDateChangeHandler = (event) => {
-        setNewNode(prevState => {
+        setNode(prevState => {
             return {...prevState, deathDate: event.target.value};
         });
     }
 
     const manualInputDateChangeHandler = (event) => {
-        setNewNode(prevState => {
+        setNode(prevState => {
             return {...prevState, manualInputDate: event.target.value};
         });
     }
@@ -56,15 +79,14 @@ const CreateNodeModal = (props) => {
         setEnterDateManually(event.target.checked);
     }
 
-    const closeAddNodeModalHandler = () => {
-        props.onCloseAddNodeModal();
+    const closeEditNodeModalHandler = () => {
+        props.onCloseEditNodeModal();
     }
 
-    const saveNewNodeHandler = () => {
-        console.log(newNode);
-        props.onSaveNewNode(newNode);
-        props.onCloseAddNodeModal();
-        setNewNode({
+    const saveNodeHandler = () => {
+        props.onSaveNode(node);
+        closeEditNodeModalHandler();
+        setNode({
             personName: '',
             birthPlace: '',
             job: '',
@@ -77,50 +99,50 @@ const CreateNodeModal = (props) => {
     const handleKeypress = e => {
         //it triggers by pressing the enter key
         if (e.keyCode === 13) {
-            saveNewNodeHandler();
+            saveNodeHandler();
         }
     };
 
     return (
-        <Modal show={props.showAddNodeModal} onHide={closeAddNodeModalHandler} onKeyDown={handleKeypress}>
+        <Modal show={props.showEditNodeModal} onHide={closeEditNodeModalHandler} onKeyDown={handleKeypress}>
             <Modal.Header closeButton>
-                <Modal.Title>Afegir node</Modal.Title>
+                <Modal.Title>Editar node</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Form>
-                    <Form.Group className="mb-3" controlId="newNodeForm.Name">
+                    <Form.Group className="mb-3" controlId="updateNodeForm.Name">
                         <Form.Label>Nom</Form.Label>
                         <Form.Control
                             type="text"
-                            value={newNode.personName}
+                            value={node.personName}
                             onChange={nameChangeHandler}
                             autoFocus
                         />
                     </Form.Group>
-                    <Form.Group className="mb-3" controlId="newNodeForm.Name">
+                    <Form.Group className="mb-3" controlId="updateNodeForm.Name">
                         <Form.Label>Lloc de naixement</Form.Label>
                         <Form.Control
                             type="text"
-                            value={newNode.birthPlace}
+                            value={node.birthPlace}
                             onChange={birthPlaceChangeHandler}
                         />
                     </Form.Group>
-                    <Form.Group className="mb-3" controlId="newNodeForm.Job">
+                    <Form.Group className="mb-3" controlId="updateNodeForm.Name">
                         <Form.Label>Ofici</Form.Label>
                         <Form.Control
                             type="text"
-                            value={newNode.job}
+                            value={node.job}
                             onChange={jobChangeHandler}
                         />
                     </Form.Group>
-                    <Form.Group className="mb-3" controlId="newNodeForm.Dates">
+                    <Form.Group className="mb-3" controlId="updateNodeForm.Name">
                         <Row>
                             {enterDateManually ?
                                 <Col>
                                     <Form.Label>Dates (o la informació que es tingui)</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        value={newNode.manualInputDate}
+                                        value={node.manualInputDate}
                                         onChange={manualInputDateChangeHandler}
                                     />
                                 </Col>
@@ -130,7 +152,7 @@ const CreateNodeModal = (props) => {
                                         <Form.Label>Data de naixement</Form.Label>
                                         <Form.Control
                                             type="date"
-                                            value={newNode.birthDate}
+                                            value={node.birthDate}
                                             onChange={birthDateChangeHandler}
                                         />
                                     </Col>
@@ -138,7 +160,7 @@ const CreateNodeModal = (props) => {
                                         <Form.Label>Data de defunció</Form.Label>
                                         <Form.Control
                                             type="date"
-                                            value={newNode.deathDate}
+                                            value={node.deathDate}
                                             onChange={deathDateChangeHandler}
                                         />
                                     </Col>
@@ -146,7 +168,7 @@ const CreateNodeModal = (props) => {
                             }
                         </Row>
                     </Form.Group>
-                    <Form.Group className="mb-3" controlId="newNodeForm.checkboxDates">
+                    <Form.Group className="mb-3" controlId="updateNodeForm.checkboxDates">
                         <Row>
                             <Col>
                                 <Form.Check
@@ -159,17 +181,17 @@ const CreateNodeModal = (props) => {
                 </Form>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={closeAddNodeModalHandler}>
+                <Button variant="secondary" onClick={closeEditNodeModalHandler}>
                     Tancar
                 </Button>
-                <Button variant="primary" onClick={saveNewNodeHandler}>
+                <Button variant="primary" onClick={saveNodeHandler}>
                     Guardar
                 </Button>
             </Modal.Footer>
         </Modal>
     );
 }
-export default CreateNodeModal;
+export default EditNodeModal;
 
 
 /**

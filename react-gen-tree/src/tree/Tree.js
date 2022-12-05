@@ -5,6 +5,7 @@ import parseNodes from "./tree-data/nodes";
 import parseEdges from "./tree-data/edges";
 import './Tree.css';
 import CreateNodeModal from "./modalWindows/CreateNodeModal";
+import EditNodeModal from "./modalWindows/EditNodeModal";
 import ContextMenu from "./contextMenu/ContextMenu";
 import {Snackbar} from "@mui/material";
 import MuiAlert from '@mui/material/Alert';
@@ -25,6 +26,7 @@ const Tree = (props) => {
 
     const [editable, setEditable] = useState(false);
     const [showAddNodeModal, setShowAddNodeModal] = useState(false);
+    const [showEditNodeModal, setShowEditNodeModal] = useState(false);
     const [nodes, setNodes] = useState([]);
     const [edges, setEdges] = useState([]);
     const [contextMenu, setContextMenu] = useState(null);
@@ -34,6 +36,7 @@ const Tree = (props) => {
     const [openSavingErrorSnackbar, setOpenSavingErrorSnackbar] = useState(false);
     const [openRetrievingErrorSnackbar, setOpenRetrievingErrorSnackbar] = useState(false);
     const [nodeContextMenuActions, setNodeContextMenuActions] = useState();
+    const [nodeEditModal, setNodeEditModal] = useState();
     const nodeTypes = useMemo(() => ({person: PersonNode, relation: RelationNode}), []);
 
     useEffect(() => {
@@ -60,16 +63,13 @@ const Tree = (props) => {
         return setEdges((eds) => applyEdgeChanges(changes, eds));
     }, []);
 
-    // Per implementar
     const onNodeDoubleClick = (event, node) => {
-        if (editable) {
-            // fer el doble click que vol el papa!
-            console.log('double click', node);
-            // editar que serà el mateix que el doble click.
+        if (editable && node.type === 'person') {
+            setNodeEditModal(node);
+            editNodeHandler();
         }
     };
 
-    // Per implementar
     const onNodeContextMenu = (event, node) => {
         if (editable) {
             contextMenuHandler(event, node);
@@ -234,6 +234,10 @@ const Tree = (props) => {
             }];
         });
         props.onChangeLoadingState(false);
+    }
+
+    const updateNodeHandler = (node) => {
+        console.log('hola capullo', node);
     }
 
     const saveNewNode = async (newNode) => {
@@ -411,6 +415,10 @@ const Tree = (props) => {
         setShowAddNodeModal(true);
     }
 
+    const editNodeHandler = () => {
+        setShowEditNodeModal(true);
+    }
+
     const addNodeBetweenCouple = (sourceNodeId, targetNodeId, nodeId) => {
         const sourceNode = nodes.find(node => node.id === sourceNodeId);
         const targetNode = nodes.find(node => node.id === targetNodeId);
@@ -469,8 +477,9 @@ const Tree = (props) => {
     }
 
 
-
     const closeAddNodeModalHandler = () => setShowAddNodeModal(false);
+
+    const closeEditNodeModalHandler = () => setShowEditNodeModal(false);
 
     const contextMenuHandler = (event, node) => {
         event.preventDefault();
@@ -535,7 +544,10 @@ const Tree = (props) => {
     }
 
     const editNodeContextMenuHandler = () => {
-        console.log('edit');
+        if (editable && nodeContextMenuActions.type === 'person') {
+            setNodeEditModal(nodeContextMenuActions);
+            editNodeHandler();
+        }
     }
 
     const removeNodeContextMenuHandler = () => {
@@ -545,10 +557,16 @@ const Tree = (props) => {
     }
 
     const handleKeypress = e => {
+        if (!editable) {
+            return;
+        }
+
         if (e.keyCode === 46) { // delete key (backspace is already handled by reactflow)
-            if (editable) {
-                removeSelectedNode();
-            }
+            removeSelectedNode();
+
+        } else if (e.keyCode === 78) { // N key
+            addNodeHandler();
+
         }
     };
 
@@ -580,7 +598,7 @@ const Tree = (props) => {
 
         for (const edge of edges) {
             if (edge.source === nodeId || edge.target === nodeId) {
-                edgesToDelete = [...edgesToDelete, { id: edge.id }];
+                edgesToDelete = [...edgesToDelete, {id: edge.id}];
 
                 setEdges(prevState => {
                     return prevState.filter(edgeItem => edgeItem.id !== edge.id);
@@ -648,10 +666,12 @@ const Tree = (props) => {
                     </ReactFlow>
                     <ContextMenu
                         contextMenuProp={contextMenu}
+                        nodeContextMenu={nodeContextMenuActions}
                         onOpenContextMenu={contextMenuHandler}
                         onCloseContextMenu={closeContextMenuHandler}
                         onEditSelectedNode={editNodeContextMenuHandler}
-                        onRemoveSelectedNode={removeNodeContextMenuHandler}/>
+                        onRemoveSelectedNode={removeNodeContextMenuHandler}
+                    />
                 </Card>
             </Container>
             <Snackbar
@@ -707,6 +727,11 @@ const Tree = (props) => {
             <CreateNodeModal showAddNodeModal={showAddNodeModal}
                              onCloseAddNodeModal={closeAddNodeModalHandler}
                              onSaveNewNode={addNewNodeHandler}
+            />
+            <EditNodeModal showEditNodeModal={showEditNodeModal}
+                           onCloseEditNodeModal={closeEditNodeModalHandler}
+                           onSaveNode={updateNodeHandler}
+                           node={nodeEditModal}
             />
         </>
     );
