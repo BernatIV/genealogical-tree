@@ -31,7 +31,7 @@ public class TreeService {
         return edgeRepository.findAll();
     }
 
-    public NodeModel addNewNode(NodeModel node) {
+    public NodeModel createOrUpdateNode(NodeModel node) {
         return nodeRepository.save(node);
     }
 

@@ -32,9 +32,9 @@ public class TreeController {
         return treeService.getEdges();
     }
 
-    @PostMapping("addNode")
-    public NodeModel addNewNode(@RequestBody NodeModel node) {
-        return treeService.addNewNode(node);
+    @PostMapping("createOrUpdateNode")
+    public NodeModel createOrUpdateNode(@RequestBody NodeModel node) {
+        return treeService.createOrUpdateNode(node);
     }
 
     @PostMapping("updateNodes")

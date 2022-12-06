@@ -225,7 +225,7 @@ const Tree = (props) => {
     const addNewNodeHandler = async (newNode) => {
         props.onChangeLoadingState(true);
 
-        const newNodeResponse = await saveNewNode(newNode);
+        const newNodeResponse = await createOrUpdateNode(newNode);
         const dateContent = fillDateField(newNodeResponse);
 
         setNodes(prevState => {
@@ -251,13 +251,27 @@ const Tree = (props) => {
         props.onChangeLoadingState(false);
     }
 
-    const updateNodeHandler = (node) => {
-        console.log('hola capullo', node);
+    const updateNodeHandler = async (node) => {
+        const nodeResponse = await createOrUpdateNode(node);
+        const dateContent = fillDateField(nodeResponse);
+
+        const updatedNode = nodes.find(n => n.id === nodeResponse.id.toString());
+        updatedNode.data.label =
+            <div>
+                <div>{nodeResponse.personName.trim()}</div>
+                <div style={{fontSize: 8}}>{nodeResponse.birthPlace.trim()}</div>
+                <div style={{fontSize: 8}}>{nodeResponse.job.trim()}</div>
+                {dateContent}
+            </div>;
+
+        setNodes(prevState => {
+            return [...prevState, updatedNode];
+        });
     }
 
-    const saveNewNode = async (newNode) => {
+    const createOrUpdateNode = async (newNode) => {
         try {
-            const response = await fetch(ENDPOINT + 'api/tree/addNode', {
+            const response = await fetch(ENDPOINT + 'api/tree/createOrUpdateNode', {
                 credentials: 'include',
                 method: 'POST',
                 headers: {
