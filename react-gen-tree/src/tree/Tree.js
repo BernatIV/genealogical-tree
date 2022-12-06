@@ -1,7 +1,7 @@
 import {Button, Card, Col, Container, Row} from "react-bootstrap";
 import ReactFlow, {addEdge, applyEdgeChanges, applyNodeChanges, Background, Controls, MiniMap} from "reactflow";
 import {forwardRef, useCallback, useEffect, useMemo, useState} from "react";
-import parseNodes from "./tree-data/nodes";
+import formatNodes from "./tree-data/nodes";
 import parseEdges from "./tree-data/edges";
 import './Tree.css';
 import CreateNodeModal from "./modalWindows/CreateNodeModal";
@@ -11,6 +11,7 @@ import {Snackbar} from "@mui/material";
 import MuiAlert from '@mui/material/Alert';
 import PersonNode from "./customNodes/PersonNode";
 import RelationNode from "./customNodes/RelationNode";
+import {fillDateField, parseStringDDMMYYYToDate} from "./tree-utils/NodeUtils";
 
 const ENDPOINT = 'https://arbregenalogic.com/'
 // const ENDPOINT = 'http://ec2-13-37-107-32.eu-west-3.compute.amazonaws.com:8080/';
@@ -44,6 +45,20 @@ const Tree = (props) => {
         fetchEdgesHandler();
 
     }, []);
+
+    // write useEffect that checks all node.type and if they are null, set them to 'person'
+    // useEffect(() => { // tinc por que peti quan el node.type que s'hagi tornat null fos de tipus relation i ara l'estigui posant a person
+    //     console.log('useEffect node');
+    //     let nodesCopy = [...nodes];
+    //     nodesCopy.forEach(node => {
+    //         if (node.type === null) {
+    //             console.log('node.type is null', node);
+    //             node.type = 'person';
+    //         }
+    //     });
+    //     setNodes(nodesCopy);
+    // }, [nodes]);
+    // pot ser que aquest problema passi al guardar tots els nodes? Perquè el tipus null arriba a la base de dades
 
 
     // *** HANDLERS ***
@@ -96,7 +111,7 @@ const Tree = (props) => {
             }
 
             const data = await response.json();
-            const nodesDto = parseNodes(data);
+            const nodesDto = formatNodes(data);
             setNodes(nodesDto);
         } catch (e) {
             setOpenRetrievingErrorSnackbar(true);
@@ -180,7 +195,7 @@ const Tree = (props) => {
             }
 
             const data = await nodesResponse.json();
-            const nodesDto = parseNodes(data);
+            const nodesDto = formatNodes(data);
             setNodes(nodesDto);
 
             const edgesResponse = await fetch(ENDPOINT + 'api/tree/saveEdges', {
@@ -364,6 +379,20 @@ const Tree = (props) => {
                     positionX: node.position.x,
                     positionY: node.position.y
                 }];
+
+                if (node.data.label.props.children[3]?.props.children.length >= 3) {
+                    nodesDto[nodesDto.length - 1].birthDate = parseStringDDMMYYYToDate(node.data.label.props.children[3].props.children[1]);
+                    nodesDto[nodesDto.length - 1].deathDate = parseStringDDMMYYYToDate(node.data.label.props.children[3].props.children[3]);
+                }
+
+                if (node.data.label.props.children[3]?.props.children[0] === 'Data de naixement: ') { // TODO quan afegeixi traduccions això no funcionarà :/
+                    nodesDto[nodesDto.length - 1].birthDate = parseStringDDMMYYYToDate(node.data.label.props.children[3].props.children[1]);
+                }
+
+                if (node.data.label.props.children[3]?.props.children[0] === 'Data de mort: ') { // TODO quan afegeixi traduccions això no funcionarà :/
+                    nodesDto[nodesDto.length - 1].deathDate = parseStringDDMMYYYToDate(node.data.label.props.children[3].props.children[1]);
+                }
+
             } else if (node.type === 'relation') {
                 if (node.id.slice(-4) === '_new') {
                     nodesDto = [...nodesDto, {
@@ -445,37 +474,6 @@ const Tree = (props) => {
 
         return {x: averageX, y: averageY};
     }
-
-    const fillDateField = (newNode) => {
-        let dateContent;
-        const birthDate = new Date(newNode.birthDate);
-        const deathDate = new Date(newNode.deathDate);
-
-        if ((newNode.birthDate !== '' && newNode.birthDate !== null) &&
-            (newNode.deathDate === '' || newNode.deathDate === null)) {
-
-            dateContent = <div style={{fontSize: 8}}>Data de naixement: {birthDate.toLocaleDateString("es-ES")}</div>;
-        }
-
-        if ((newNode.birthDate === '' || newNode.birthDate === null) &&
-            (newNode.deathDate !== '' && newNode.deathDate !== null)) {
-            dateContent = <div style={{fontSize: 8}}>Data de mort: {deathDate.toLocaleDateString("es-ES")}</div>;
-        }
-
-        if (newNode.birthDate !== '' && newNode.birthDate !== null &&
-            newNode.deathDate !== '' && newNode.deathDate !== null) {
-            dateContent =
-                <div style={{fontSize: 8}}>
-                    ({birthDate.toLocaleDateString("es-ES")}) - ({deathDate.toLocaleDateString("es-ES")})
-                </div>;
-        }
-
-        if (newNode.manualInputDate.trim() !== '') {
-            dateContent = <div style={{fontSize: 8}}>({newNode.manualInputDate.trim()})</div>;
-        }
-        return dateContent
-    }
-
 
     const closeAddNodeModalHandler = () => setShowAddNodeModal(false);
 
@@ -711,7 +709,7 @@ const Tree = (props) => {
                 anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
             >
                 <Alert onClose={closeSavingErrorSnackbarHandler} severity="error" sx={{width: '100%'}}>
-                    Hi ha hagut un error guardant el canvi :/
+                    Hi ha hagut un error guardant canvis
                 </Alert>
             </Snackbar>
             <Snackbar

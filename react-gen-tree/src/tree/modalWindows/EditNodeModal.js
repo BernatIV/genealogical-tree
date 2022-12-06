@@ -1,5 +1,6 @@
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 import {useEffect, useState} from "react";
+import {parseStringDDMMYYYToDate} from "../tree-utils/NodeUtils";
 
 const EditNodeModal = (props) => {
 
@@ -14,6 +15,8 @@ const EditNodeModal = (props) => {
         deathDate: '',
         manualInputDate: '',
         nodeType: 'person',
+        positionX: 0,
+        positionY: 0
     });
 
     // We pass the node data to the modal window once the user selects the node
@@ -23,20 +26,55 @@ const EditNodeModal = (props) => {
         }
     }, [props.showEditNodeModal]);
 
-
-
     const loadNodeData = () => {
         setNode((prevState) => {
             return {
                 ...prevState,
                 id: props.node.id,
-                personName: props.node?.data.label.props.children[0].props.children,
-                job: props.node?.data.label.props.children[2].props.children,
-                birthPlace: props.node.data.label.props.children[1].props.children,
+                personName: props.node?.data.label.props.children[0].props?.children,
+                birthPlace: props.node.data.label.props.children[1].props?.children,
+                job: props.node?.data.label.props.children[2].props?.children,
+                birthDate: '',
+                deathDate: '',
                 positionX: props.node.position.x,
                 positionY: props.node.position.y,
             }
         });
+
+        if (props.node.data.label.props.children[3]?.props.children.length >= 3) {
+            setNode(prevState => {
+                return {
+                    ...prevState,
+                    birthDate: getTimeForDateInput(props.node?.data.label.props.children[3].props?.children[1]),
+                    deathDate: getTimeForDateInput(props.node?.data.label.props.children[3].props?.children[3])
+                };
+            });
+        }
+
+        if (props.node.data.label.props.children[3]?.props.children[0] === 'Data de naixement: ') { // TODO quan afegeixi traduccions això no funcionarà :/
+            setNode(prevState => {
+                return {
+                    ...prevState,
+                    birthDate: getTimeForDateInput(props.node?.data.label.props.children[3].props?.children[1])
+                };
+            });
+        }
+
+        if (props.node.data.label.props.children[3]?.props.children[0] === 'Data de mort: ') { // TODO quan afegeixi traduccions això no funcionarà :/
+            setNode(prevState => {
+                return {
+                    ...prevState,
+                    deathDate: getTimeForDateInput(props.node?.data.label.props.children[3].props?.children[1])
+                }
+            });
+        }
+    }
+
+    const getTimeForDateInput = (localeFormattedDate) => {
+        let date = parseStringDDMMYYYToDate(localeFormattedDate);
+        const offset = date.getTimezoneOffset(); // To handle time zone offset
+        date = new Date(date.getTime() - (offset*60*1000));
+        return date.toISOString().split('T')[0];
     }
 
     const nameChangeHandler = (event) => {

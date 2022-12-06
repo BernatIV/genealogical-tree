@@ -1,8 +1,13 @@
-const parseNodes = (nodes) => {
+import {fillDateField} from "../tree-utils/NodeUtils";
+
+const formatNodes = (nodes) => {
 
     let nodesDto = [];
 
     for (const node of nodes) {
+        let dateContent;
+        dateContent = fillDateField(node);
+
         nodesDto = [...nodesDto, {
             id: node.id.toString(),
             type: node.nodeType,
@@ -12,6 +17,7 @@ const parseNodes = (nodes) => {
                         <div>{node.personName}</div>
                         <div style={{fontSize: 8}}>{node.birthPlace}</div>
                         <div style={{fontSize: 8}}>{node.job}</div>
+                        {dateContent}
                     </div>
                     :
                     <div style={{fontSize: 7}}>&nbsp;</div>
@@ -22,9 +28,7 @@ const parseNodes = (nodes) => {
 
     return nodesDto;
 }
-
-export default parseNodes;
-
+export default formatNodes;
 
 /*
 
