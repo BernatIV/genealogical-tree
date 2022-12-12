@@ -53,11 +53,11 @@ const Tree = (props) => {
     //     nodesCopy.forEach(node => {
     //         if (node.type === null) {
     //             console.log('node.type is null', node);
-    //             node.type = 'person';
+    //             node.type = 'person'; // potser borra el node sencer en comptes de setejarlo a person
     //         }
     //     });
     //     setNodes(nodesCopy);
-    // }, [nodes]);
+    // }, [nodes]); // -> si s'executa cada vegada que canviï l'array de nodes, sempre estarà comprovant si hi ha un tipus null, i no apareixeran mai
     // pot ser que aquest problema passi al guardar tots els nodes? Perquè el tipus null arriba a la base de dades
 
 
@@ -245,7 +245,9 @@ const Tree = (props) => {
                     x: newNodeResponse.positionX,
                     y: newNodeResponse.positionY
                 },
-                isEditable: editable
+                hasBirthDate: newNodeResponse.birthDate ? true : false,
+                hasDeathDate: newNodeResponse.deathDate ? true : false,
+                isEditable: editable // should be removed
             }];
         });
         props.onChangeLoadingState(false);
@@ -263,6 +265,8 @@ const Tree = (props) => {
                 <div style={{fontSize: 8}}>{nodeResponse.job.trim()}</div>
                 {dateContent}
             </div>;
+        updatedNode.hasBirthDate = nodeResponse.birthDate;
+        updatedNode.hasDeathDate = nodeResponse.deathDate;
 
         setNodes(prevState => {
             return [...prevState, updatedNode];
@@ -394,16 +398,16 @@ const Tree = (props) => {
                     positionY: node.position.y
                 }];
 
-                if (node.data.label.props.children[3]?.props.children.length >= 3) {
+                if (node.hasBirthDate && node.hasDeathDate) {
                     nodesDto[nodesDto.length - 1].birthDate = parseStringDDMMYYYToDate(node.data.label.props.children[3].props.children[1]);
                     nodesDto[nodesDto.length - 1].deathDate = parseStringDDMMYYYToDate(node.data.label.props.children[3].props.children[3]);
                 }
 
-                if (node.data.label.props.children[3]?.props.children[0] === 'Data de naixement: ') { // TODO quan afegeixi traduccions això no funcionarà :/
+                else if (node.hasBirthDate) {
                     nodesDto[nodesDto.length - 1].birthDate = parseStringDDMMYYYToDate(node.data.label.props.children[3].props.children[1]);
                 }
 
-                if (node.data.label.props.children[3]?.props.children[0] === 'Data de mort: ') { // TODO quan afegeixi traduccions això no funcionarà :/
+                else if (node.hasDeathDate) {
                     nodesDto[nodesDto.length - 1].deathDate = parseStringDDMMYYYToDate(node.data.label.props.children[3].props.children[1]);
                 }
 
@@ -750,6 +754,11 @@ const Tree = (props) => {
 }
 
 export default Tree;
+
+/*
+TODO
+- posar les crides a la API en un fitxer a part. Com en NodeUtils.js que té varies funcions exportades
+ */
 
 /**
  * https://reactflow.dev/

@@ -22,7 +22,9 @@ const formatNodes = (nodes) => {
                     :
                     <div style={{fontSize: 7}}>&nbsp;</div>
             },
-            position: {x: node.positionX, y: node.positionY}
+            position: {x: node.positionX, y: node.positionY},
+            hasBirthDate: node.birthDate ? true : false,
+            hasDeathDate: node.deathDate ? true : false
         }];
     }
 

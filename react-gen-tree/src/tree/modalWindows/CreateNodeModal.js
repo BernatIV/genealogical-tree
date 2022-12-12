@@ -12,7 +12,7 @@ const CreateNodeModal = (props) => {
         manualInputDate: '',
         nodeType: 'person',
         positionX: 0,
-        positionY: 0
+        positionY: 0,
     });
     const [enterDateManually, setEnterDateManually] = useState(false);
 
@@ -36,13 +36,19 @@ const CreateNodeModal = (props) => {
 
     const birthDateChangeHandler = (event) => {
         setNewNode(prevState => {
-            return {...prevState, birthDate: event.target.value};
+            return {
+                ...prevState,
+                birthDate: event.target.value
+            };
         });
     }
 
     const deathDateChangeHandler = (event) => {
         setNewNode(prevState => {
-            return {...prevState, deathDate: event.target.value};
+            return {
+                ...prevState,
+                deathDate: event.target.value
+            };
         });
     }
 

@@ -16,7 +16,7 @@ const EditNodeModal = (props) => {
         manualInputDate: '',
         nodeType: 'person',
         positionX: 0,
-        positionY: 0
+        positionY: 0,
     });
 
     // We pass the node data to the modal window once the user selects the node
@@ -41,7 +41,7 @@ const EditNodeModal = (props) => {
             }
         });
 
-        if (props.node.data.label.props.children[3]?.props.children.length >= 3) {
+        if (props.node.hasBirthDate && props.node.hasDeathDate) {
             setNode(prevState => {
                 return {
                     ...prevState,
@@ -51,7 +51,7 @@ const EditNodeModal = (props) => {
             });
         }
 
-        if (props.node.data.label.props.children[3]?.props.children[0] === 'Data de naixement: ') { // TODO quan afegeixi traduccions això no funcionarà :/
+        else if (props.node.hasBirthDate) {
             setNode(prevState => {
                 return {
                     ...prevState,
@@ -60,7 +60,7 @@ const EditNodeModal = (props) => {
             });
         }
 
-        if (props.node.data.label.props.children[3]?.props.children[0] === 'Data de mort: ') { // TODO quan afegeixi traduccions això no funcionarà :/
+        else if (props.node.hasDeathDate) {
             setNode(prevState => {
                 return {
                     ...prevState,
