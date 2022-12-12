@@ -14,7 +14,7 @@
 	<name>java-gen-tree</name>
 	<description>Backend for this genealogical tree</description>
 	<properties>
-		<java.version>11</java.version>
+		<java.version>17</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
