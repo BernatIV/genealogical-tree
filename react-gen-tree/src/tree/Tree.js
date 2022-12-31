@@ -292,6 +292,7 @@ const Tree = (props) => {
             setOpenSaveNodeSuccessSnackbar(true);
             return newNodeResponse;
         } catch (e) {
+            props.onChangeLoadingState(false);
             setOpenSavingErrorSnackbar(true);
             throw new Error(e.message);
         }
