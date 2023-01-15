@@ -105,7 +105,7 @@ const Login = () => {
                                 <>
                                     <h2 className="fw-bold mb-5">Log in</h2>
 
-                                    <MDBInput wrapperClass='mb-4' label='Email' id='form3' type='email'
+                                    <MDBInput wrapperClass='mb-4' label='Username or email' id='form3' type='email'
                                               value={userInput.email} onChange={emailLoginChangeHandler}/>
                                     <MDBInput wrapperClass='mb-4' label='Password' id='form4' type='password'
                                               value={userInput.password} onChange={passwordLoginChangeHandler}/>

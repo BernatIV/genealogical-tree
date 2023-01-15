@@ -1,44 +1,19 @@
 package com.marc.javagentree.login.business;
 
+import com.marc.javagentree.login.model.Role;
 import com.marc.javagentree.login.model.UserModel;
-import com.marc.javagentree.login.repository.UserRepository;
-import org.springframework.stereotype.Service;
 
-@Service
-public class UserService {
+import java.util.List;
 
-    private UserRepository userRepository;
+public interface UserService {
+    UserModel registerUser(UserModel user);
+    void loginUser(UserModel user);
+    void logoutUser();
+    void deleteUser(UserModel user);
+    UserModel updateUser(UserModel user);
+    UserModel getUser(String username);
+    List<UserModel> getAllUsers();
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
-    public void registerUser(UserModel user) {
-        userRepository.save(user);
-    }
-
-    public void loginUser(UserModel user) {
-
-    }
-
-    public void logoutUser() {
-
-    }
-
-    public void deleteUser() {
-
-    }
-
-    public void updateUser() {
-
-    }
-
-    public void getUser() {
-
-    }
-
-    public void getAllUsers() {
-
-    }
-
+    Role saveRole(Role role);
+    void addRoleToUser(String usename, String roleName);
 }
